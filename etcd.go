@@ -2,7 +2,9 @@ package forest
 
 import (
 	"context"
+	"github.com/coreos/etcd/mvcc/mvccpb"
 	"go.etcd.io/etcd/clientv3"
+	"log"
 	"time"
 )
 
@@ -160,4 +162,110 @@ func (etcd *Etcd) Update(key, value, oldValue string) (success bool, err error) 
 	}
 
 	return
+}
+
+func (etcd *Etcd) Delete(key string) (err error) {
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	_, err = etcd.kv.Delete(ctx, key)
+
+	return
+}
+
+// delete the keys  with prefix key
+func (etcd *Etcd) DeleteWithPrefixKey(prefixKey string) (err error) {
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	_, err = etcd.kv.Delete(ctx, prefixKey, clientv3.WithPrefix())
+
+	return
+}
+
+// watch a key
+func (etcd *Etcd) Watch(key string) (keyChangeEventResponse *WatchKeyChangeResponse) {
+
+	watcher := clientv3.NewWatcher(etcd.client)
+
+	watchChans := watcher.Watch(context.Background(), key)
+
+	keyChangeEventResponse = &WatchKeyChangeResponse{
+		Event:   make(chan *KeyChangeEvent, 250),
+		watcher: watcher,
+	}
+
+	go func() {
+
+		for ch := range watchChans {
+
+			if ch.Canceled {
+				goto End
+			}
+			for _, event := range ch.Events {
+				etcd.handleKeyChangeEvent(event, keyChangeEventResponse.Event)
+			}
+		}
+
+	End:
+		log.Println("the watcher lose for key:", key)
+	}()
+
+	return
+}
+
+// watch with prefix key
+func (etcd *Etcd) WatchWithPrefixKey(prefixKey string) (keyChangeEventResponse *WatchKeyChangeResponse) {
+
+	watcher := clientv3.NewWatcher(etcd.client)
+
+	watchChans := watcher.Watch(context.Background(), prefixKey, clientv3.WithPrefix())
+
+	keyChangeEventResponse = &WatchKeyChangeResponse{
+		Event:   make(chan *KeyChangeEvent, 250),
+		watcher: watcher,
+	}
+
+	go func() {
+
+		for ch := range watchChans {
+
+			if ch.Canceled {
+				goto End
+			}
+			for _, event := range ch.Events {
+				etcd.handleKeyChangeEvent(event, keyChangeEventResponse.Event)
+			}
+		}
+
+	End:
+		log.Println("the watcher lose for prefixKey:", prefixKey)
+	}()
+
+	return
+}
+
+// handle the key change event
+func (etcd *Etcd) handleKeyChangeEvent(event *clientv3.Event, events chan *KeyChangeEvent) {
+
+	changeEvent := &KeyChangeEvent{
+		Key: string(event.Kv.Key),
+	}
+	switch event.Type {
+
+	case mvccpb.PUT:
+		if event.IsCreate() {
+			changeEvent.Type = KeyCreateChangeEvent
+		} else {
+			changeEvent.Type = KeyCreateChangeEvent
+		}
+		changeEvent.Value = event.Kv.Value
+	case mvccpb.DELETE:
+
+		changeEvent.Type = KeyDeleteChangeEvent
+	}
+	events <- changeEvent
+
 }
