@@ -160,7 +160,7 @@ func TestEtcd_Watch(t *testing.T) {
 	t.Log(<-keyChangeEventResponse.Event)
 
 	g.Wait()
-	_ = keyChangeEventResponse.watcher.Close()
+	_ = keyChangeEventResponse.Watcher.Close()
 
 }
 
