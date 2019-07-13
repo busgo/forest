@@ -2,6 +2,7 @@ package forest
 
 import (
 	"log"
+	"sync"
 	"testing"
 	"time"
 )
@@ -21,12 +22,12 @@ func TestEtcd_Put(t *testing.T) {
 
 	err := etcd.Put("/echo", "echo-value")
 	if err != nil {
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 	err = etcd.Put("/echo/one", "echo-value-one")
 	if err != nil {
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 }
@@ -37,7 +38,7 @@ func TestEtcd_Get(t *testing.T) {
 	value, err := etcd.Get("/echo")
 	if err != nil {
 
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 	log.Println("get a value:", string(value))
@@ -49,13 +50,13 @@ func TestEtcd_GetWithPrefixKey(t *testing.T) {
 	keys, values, err := etcd.GetWithPrefixKey("/echo")
 	if err != nil {
 
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 	for i, key := range keys {
 
-		log.Println("key:", string(key))
-		log.Println("value:", string(values[i]))
+		t.Log("key:", string(key))
+		t.Log("value:", string(values[i]))
 	}
 
 }
@@ -66,12 +67,12 @@ func TestEtcd_PutNotExist(t *testing.T) {
 
 	success, old, err := etcd.PutNotExist("/echo", "echo-value")
 	if err != nil {
-		log.Fatal(err)
+		t.Log(err)
 	}
 
-	log.Println("success", success)
+	t.Log("success", success)
 
-	log.Println("old", string(old))
+	t.Log("old", string(old))
 }
 
 func TestEtcd_Update(t *testing.T) {
@@ -80,13 +81,86 @@ func TestEtcd_Update(t *testing.T) {
 
 	value, err := etcd.Get("/echo")
 	if err != nil {
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 	success, err := etcd.Update("/echo", "echo-2", string(value))
 	if err != nil {
-		log.Fatal(err)
+		t.Error(err)
 	}
 
 	log.Println("success:", success)
+}
+
+func TestEtcd_Delete(t *testing.T) {
+
+	etcd := InitEtcd()
+
+	err := etcd.Delete("/echo")
+	if err != nil {
+		t.Error(err)
+	}
+
+}
+
+func TestEtcd_DeleteWithPrefixKey(t *testing.T) {
+
+	etcd := InitEtcd()
+
+	err := etcd.DeleteWithPrefixKey("/echo")
+	if err != nil {
+		t.Error(err)
+	}
+
+}
+
+func TestEtcd_Watch(t *testing.T) {
+
+	etcd := InitEtcd()
+	err := etcd.Put("/echo", "echo-value")
+	if err != nil {
+		t.Error(err)
+	}
+
+	g := &sync.WaitGroup{}
+	g.Add(3)
+	keyChangeEventResponse := etcd.Watch("/watch")
+	go func() {
+		err := etcd.Put("/watch", "watch-value")
+		if err != nil {
+			t.Error(err)
+		}
+
+		g.Done()
+
+	}()
+
+	go func() {
+		err := etcd.Put("/watch", "watch-value")
+		if err != nil {
+			t.Error(err)
+		}
+
+		g.Done()
+
+	}()
+
+	go func() {
+		err := etcd.Delete("/watch")
+		if err != nil {
+			t.Error(err)
+		}
+
+		g.Done()
+
+	}()
+
+
+	t.Log(<-keyChangeEventResponse.Event)
+	t.Log(<-keyChangeEventResponse.Event)
+	t.Log(<-keyChangeEventResponse.Event)
+
+	g.Wait()
+	keyChangeEventResponse.watcher.Close()
+
 }

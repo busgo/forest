@@ -1,6 +1,9 @@
 package forest
 
-import "go.etcd.io/etcd/clientv3"
+import (
+	"context"
+	"go.etcd.io/etcd/clientv3"
+)
 
 const (
 	KeyCreateChangeEvent = iota
@@ -18,5 +21,6 @@ type KeyChangeEvent struct {
 // 监听key 变化响应
 type WatchKeyChangeResponse struct {
 	Event   chan *KeyChangeEvent
+	CancelFunc  context.CancelFunc
 	watcher clientv3.Watcher
 }

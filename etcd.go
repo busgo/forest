@@ -189,7 +189,6 @@ func (etcd *Etcd) DeleteWithPrefixKey(prefixKey string) (err error) {
 func (etcd *Etcd) Watch(key string) (keyChangeEventResponse *WatchKeyChangeResponse) {
 
 	watcher := clientv3.NewWatcher(etcd.client)
-
 	watchChans := watcher.Watch(context.Background(), key)
 
 	keyChangeEventResponse = &WatchKeyChangeResponse{
@@ -202,6 +201,7 @@ func (etcd *Etcd) Watch(key string) (keyChangeEventResponse *WatchKeyChangeRespo
 		for ch := range watchChans {
 
 			if ch.Canceled {
+
 				goto End
 			}
 			for _, event := range ch.Events {
@@ -259,7 +259,7 @@ func (etcd *Etcd) handleKeyChangeEvent(event *clientv3.Event, events chan *KeyCh
 		if event.IsCreate() {
 			changeEvent.Type = KeyCreateChangeEvent
 		} else {
-			changeEvent.Type = KeyCreateChangeEvent
+			changeEvent.Type = KeyUpdateChangeEvent
 		}
 		changeEvent.Value = event.Kv.Value
 	case mvccpb.DELETE:
