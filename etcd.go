@@ -269,3 +269,117 @@ func (etcd *Etcd) handleKeyChangeEvent(event *clientv3.Event, events chan *KeyCh
 	events <- changeEvent
 
 }
+
+func (etcd *Etcd) TxWithTTL(key, value string, ttl int64) (txResponse *TxResponse, err error) {
+
+	var (
+		txnResponse *clientv3.TxnResponse
+		leaseID     clientv3.LeaseID
+		v           []byte
+	)
+	lease := clientv3.NewLease(etcd.client)
+
+	grantResponse, err := lease.Grant(context.Background(), ttl)
+
+	leaseID = grantResponse.ID
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	txn := etcd.client.Txn(ctx)
+	txnResponse, err = txn.If(
+		clientv3.Compare(clientv3.Version(key), "=", 0)).
+		Then(clientv3.OpPut(key, value, clientv3.WithLease(leaseID))).Commit()
+
+	if err != nil {
+		_ = lease.Close()
+		return
+	}
+
+	txResponse = &TxResponse{
+		LeaseID: leaseID,
+		Lease:   lease,
+	}
+	if txnResponse.Succeeded {
+		txResponse.Success = true
+	} else {
+		// close the lease
+		_ = lease.Close()
+		v, err = etcd.Get(key)
+		if err != nil {
+			return
+		}
+		txResponse.Success = false
+		txResponse.Key = key
+		txResponse.Value = string(v)
+	}
+	return
+}
+
+func (etcd *Etcd) TxKeepaliveWithTTL(key, value string, ttl int64) (txResponse *TxResponse, err error) {
+
+	var (
+		txnResponse    *clientv3.TxnResponse
+		leaseID        clientv3.LeaseID
+		aliveResponses <-chan *clientv3.LeaseKeepAliveResponse
+		v              []byte
+	)
+	lease := clientv3.NewLease(etcd.client)
+
+	grantResponse, err := lease.Grant(context.Background(), ttl)
+
+	leaseID = grantResponse.ID
+
+	if aliveResponses, err = lease.KeepAlive(context.Background(), leaseID); err != nil {
+
+		return
+	}
+
+	go func() {
+
+		for ch := range aliveResponses {
+
+			if ch == nil {
+				goto End
+			}
+
+		}
+
+	End:
+		log.Printf("the tx keepalive has lose key:%s", key)
+	}()
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	txn := etcd.client.Txn(ctx)
+	txnResponse, err = txn.If(
+		clientv3.Compare(clientv3.Version(key), "=", 0)).
+		Then(clientv3.OpPut(key, value, clientv3.WithLease(leaseID))).
+		Else(
+			clientv3.OpGet(key),
+		).Commit()
+
+	if err != nil {
+		_ = lease.Close()
+		return
+	}
+
+	txResponse = &TxResponse{
+		LeaseID: leaseID,
+		Lease:   lease,
+	}
+	if txnResponse.Succeeded {
+		txResponse.Success = true
+	} else {
+		// close the lease
+		_ = lease.Close()
+		txResponse.Success = false
+		if v, err = etcd.Get(key); err != nil {
+			return
+		}
+		txResponse.Key = key
+		txResponse.Value = string(v)
+	}
+	return
+}

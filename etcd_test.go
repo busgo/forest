@@ -155,12 +155,52 @@ func TestEtcd_Watch(t *testing.T) {
 
 	}()
 
-
 	t.Log(<-keyChangeEventResponse.Event)
 	t.Log(<-keyChangeEventResponse.Event)
 	t.Log(<-keyChangeEventResponse.Event)
 
 	g.Wait()
-	keyChangeEventResponse.watcher.Close()
+	_ = keyChangeEventResponse.watcher.Close()
 
+}
+
+//
+func TestEtcd_TxWithTTL(t *testing.T) {
+
+	etcd := InitEtcd()
+
+	txResponse, err := etcd.TxWithTTL("/ttl", "ttl", 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log("success:", txResponse.Success)
+
+	if !txResponse.Success {
+		t.Log(txResponse.Value)
+		t.Log(txResponse.Key)
+
+	}
+}
+
+func TestEtcd_TxKeepaliveWithTTL(t *testing.T) {
+
+	etcd := InitEtcd()
+
+	txResponse, err := etcd.TxKeepaliveWithTTL("/keep", "keep", 10)
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log("success:", txResponse.Success)
+
+	if !txResponse.Success {
+		t.Log(txResponse.Value)
+		t.Log(txResponse.Key)
+
+	}
+
+	_ = txResponse.Lease.Close()
+
+	time.Sleep(time.Second * 3)
 }
