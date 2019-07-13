@@ -22,7 +22,7 @@ type KeyChangeEvent struct {
 type WatchKeyChangeResponse struct {
 	Event      chan *KeyChangeEvent
 	CancelFunc context.CancelFunc
-	watcher    clientv3.Watcher
+	Watcher    clientv3.Watcher
 }
 
 type TxResponse struct {

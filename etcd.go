@@ -193,7 +193,7 @@ func (etcd *Etcd) Watch(key string) (keyChangeEventResponse *WatchKeyChangeRespo
 
 	keyChangeEventResponse = &WatchKeyChangeResponse{
 		Event:   make(chan *KeyChangeEvent, 250),
-		watcher: watcher,
+		Watcher: watcher,
 	}
 
 	go func() {
@@ -225,7 +225,7 @@ func (etcd *Etcd) WatchWithPrefixKey(prefixKey string) (keyChangeEventResponse *
 
 	keyChangeEventResponse = &WatchKeyChangeResponse{
 		Event:   make(chan *KeyChangeEvent, 250),
-		watcher: watcher,
+		Watcher: watcher,
 	}
 
 	go func() {
