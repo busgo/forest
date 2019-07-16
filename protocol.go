@@ -37,3 +37,27 @@ type TxResponse struct {
 	Key     string
 	Value   string
 }
+
+// job
+type JobConf struct {
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Group  string `json:"group"`
+	Cron   string `json:"cron"`
+	Status int    `json:"status"`
+	Target string `json:"target"`
+	Params string `json:"params"`
+	Mobile string `json:"mobile"`
+	Remark string `json:"remark"`
+}
+
+type Result struct {
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message"`
+}
+
+type GroupConf struct {
+	Name   string `json:"name"`
+	Remark string `json:"remark"`
+}

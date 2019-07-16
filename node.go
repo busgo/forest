@@ -19,6 +19,8 @@ type JobNode struct {
 	electPath    string
 	etcd         *Etcd
 	state        int
+	apiAddress   string
+	api          *JobAPi
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -29,9 +31,12 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 		electPath:    JobNodeElectPath,
 		etcd:         etcd,
 		state:        NodeFollowerState,
+		apiAddress:   ":8888",
 	}
 
 	node.init()
+	// create a job http api 
+	node.api = NewJobAPi(node)
 
 	return
 }
