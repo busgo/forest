@@ -82,8 +82,8 @@ func (etcd *Etcd) GetWithPrefixKey(prefixKey string) (keys [][]byte, values [][]
 		return
 	}
 
-	keys = make([][]byte, len(getResponse.Kvs))
-	values = make([][]byte, len(getResponse.Kvs))
+	keys = make([][]byte, 0)
+	values = make([][]byte, 0)
 
 	for i := 0; i < len(getResponse.Kvs); i++ {
 		keys = append(keys, getResponse.Kvs[i].Key)

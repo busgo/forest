@@ -71,6 +71,11 @@ func (api *JobAPi) AddJob(context echo.Context) (err error) {
 		goto ERROR
 	}
 
+	if err = api.node.manager.AddJob(jobConf); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+
 	return context.JSON(http.StatusOK, Result{Code: 0, Data: jobConf, Message: "创建成功"})
 
 ERROR:
@@ -123,6 +128,11 @@ func (api *JobAPi) editJob(context echo.Context) (err error) {
 		goto ERROR
 	}
 
+	if err = api.node.manager.editJob(jobConf); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+
 	return context.JSON(http.StatusOK, Result{Code: 0, Data: jobConf, Message: "修改成功"})
 
 ERROR:
@@ -132,7 +142,14 @@ ERROR:
 // job  list
 func (api *JobAPi) jobList(context echo.Context) (err error) {
 
-	return context.JSON(http.StatusOK, Result{Code: 0, Message: "查询成成功"})
+	var (
+		jobConfs []*JobConf
+	)
+
+	if jobConfs, err = api.node.manager.jobList(); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: jobConfs, Message: "查询成成功"})
 
 }
 
@@ -142,19 +159,24 @@ func (api *JobAPi) deleteJob(context echo.Context) (err error) {
 	var (
 		message string
 	)
-	job := new(JobConf)
-	if err = context.Bind(job); err != nil {
+	jobConf := new(JobConf)
+	if err = context.Bind(jobConf); err != nil {
 
 		message = "请求参数不能为空"
 		goto ERROR
 	}
 
-	if job.Id == "" {
+	if jobConf.Id == "" {
 		message = "此任务记录不存在"
 		goto ERROR
 	}
 
-	return context.JSON(http.StatusOK, Result{Code: 0, Data: job, Message: "删除成功"})
+	if err = api.node.manager.deleteJob(jobConf); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: jobConf, Message: "删除成功"})
 
 ERROR:
 	return context.JSON(http.StatusOK, Result{Code: -1, Message: message})
@@ -183,6 +205,11 @@ func (api *JobAPi) addGroup(context echo.Context) (err error) {
 		goto ERROR
 	}
 
+	if err = api.node.manager.addGroup(groupConf); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+
 	return context.JSON(http.StatusOK, Result{Code: 0, Data: groupConf, Message: "添加成功"})
 
 ERROR:
@@ -192,13 +219,28 @@ ERROR:
 // job group list
 func (api *JobAPi) groupList(context echo.Context) (err error) {
 
-	return context.JSON(http.StatusOK, Result{Code: 0, Message: "查询成成功"})
+	var (
+		groupConfs []*GroupConf
+	)
+
+	if groupConfs, err = api.node.manager.groupList(); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: groupConfs, Message: "查询成成功"})
 
 }
 
 // job node list
 func (api *JobAPi) nodeList(context echo.Context) (err error) {
 
-	return context.JSON(http.StatusOK, Result{Code: 0, Message: "查询成成功"})
+	var (
+		nodes []string
+	)
+
+	if nodes, err = api.node.manager.nodeList(); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: nodes, Message: "查询成成功"})
 
 }

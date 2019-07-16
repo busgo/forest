@@ -21,6 +21,7 @@ type JobNode struct {
 	state        int
 	apiAddress   string
 	api          *JobAPi
+	manager      *JobManager
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -35,7 +36,11 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 	}
 
 	node.init()
-	// create a job http api 
+
+	// create job manager 
+	node.manager = NewJobManager(node)
+
+	// create a job http api
 	node.api = NewJobAPi(node)
 
 	return
