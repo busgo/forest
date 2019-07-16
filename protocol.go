@@ -11,6 +11,11 @@ const (
 	KeyDeleteChangeEvent
 )
 
+const (
+	NodeFollowerState = iota
+	NodeLeaderState
+)
+
 // key 变化事件
 type KeyChangeEvent struct {
 	Type  int

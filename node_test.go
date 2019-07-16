@@ -21,3 +21,18 @@ func TestNewJobNode(t *testing.T) {
 		time.Sleep(time.Second)
 	}
 }
+func TestNewJobNode2(t *testing.T) {
+
+	etcd := InitEtcd()
+
+	jobNode, err := NewJobNode("192.168.10.36", etcd)
+	if err != nil {
+		t.Error(err)
+	}
+
+	log.Printf("the job Node:%#v", jobNode)
+
+	for {
+		time.Sleep(time.Second)
+	}
+}
