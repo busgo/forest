@@ -25,6 +25,7 @@ func NewJobScheduler(node *JobNode) (sch *JobScheduler) {
 	}
 
 	go sch.lookup()
+	go sch.loopSchedule()
 
 	return
 }
@@ -172,4 +173,71 @@ func (sch *JobScheduler) handleJobDeleteEvent(event *JobChangeEvent) {
 func (sch *JobScheduler) pushJobChangeEvent(event *JobChangeEvent) {
 
 	sch.eventChan <- event
+}
+
+// loop schedule job
+func (sch *JobScheduler) loopSchedule() {
+
+	timer := time.NewTimer(time.Second)
+
+	for {
+
+		select {
+
+		case <-timer.C:
+
+		}
+
+		durationTime := sch.trySchedule()
+		log.Infof("the durationTime :%d", durationTime)
+		timer.Reset(durationTime)
+	}
+
+}
+
+// try schedule the job
+func (sch *JobScheduler) trySchedule() time.Duration {
+
+	var (
+		first bool
+	)
+	if len(sch.schedulePlans) == 0 {
+
+		return time.Second
+	}
+
+	now := time.Now()
+	leastTime := new(time.Time)
+	first = true
+	for _, plan := range sch.schedulePlans {
+
+		scheduleTime := plan.NextTime
+		if scheduleTime.Before(now) {
+			log.Infof("schedule execute the plan:%#v", plan)
+		}
+		nextTime := plan.schedule.Next(now)
+		plan.NextTime = nextTime
+		plan.BeforeTime = scheduleTime
+
+		// first
+		if first {
+			first = false
+			leastTime = &nextTime
+		}
+
+		// check least time after next schedule  time
+		if leastTime.After(nextTime) {
+
+			leastTime = &nextTime
+		}
+
+	}
+
+	if leastTime.Before(now) {
+
+		return time.Second
+	}
+
+	return leastTime.Sub(now)
+
 }
