@@ -2,7 +2,8 @@ package forest
 
 import (
 	"errors"
-	"log"
+	"github.com/labstack/gommon/log"
+	"strings"
 )
 
 const (
@@ -41,12 +42,90 @@ func (manager *JobManager) handleJobConfChangeEvent(changeEvent *KeyChangeEvent)
 	switch changeEvent.Type {
 
 	case KeyCreateChangeEvent:
+		
+		manager.handleJobCreateEvent(changeEvent.Value)
 	case KeyUpdateChangeEvent:
+
+		manager.handleJobUpdateEvent(changeEvent.Value)
 	case KeyDeleteChangeEvent:
+
+		manager.handleJobDeleteEvent(changeEvent.Key)
 
 	}
 }
 
+func (manager *JobManager) handleJobCreateEvent(value []byte) {
+
+	var (
+		err     error
+		jobConf *JobConf
+	)
+	if len(value) == 0 {
+
+		return
+	}
+
+	if jobConf, err = UParkJobConf(value); err != nil {
+		log.Printf("unpark the job conf err:%#v", err)
+		return
+	}
+
+	manager.node.scheduler.pushJobChangeEvent(&JobChangeEvent{
+		Type: JobCreateChangeEvent,
+		Conf: jobConf,
+	})
+
+}
+
+func (manager *JobManager) handleJobUpdateEvent(value []byte) {
+
+	var (
+		err     error
+		jobConf *JobConf
+	)
+	if len(value) == 0 {
+
+		return
+	}
+
+	if jobConf, err = UParkJobConf(value); err != nil {
+		log.Printf("unpark the job conf err:%#v", err)
+		return
+	}
+
+	manager.node.scheduler.pushJobChangeEvent(&JobChangeEvent{
+		Type: JobUpdateChangeEvent,
+		Conf: jobConf,
+	})
+
+}
+
+// handle the job delete event
+func (manager *JobManager) handleJobDeleteEvent(key string) {
+
+	if key == "" {
+		return
+	}
+
+	pos := strings.LastIndex(key, "/")
+	if pos == -1 {
+		return
+	}
+
+	id := key[pos+1:]
+
+	jobConf := &JobConf{
+		Id: id,
+	}
+
+	manager.node.scheduler.pushJobChangeEvent(&JobChangeEvent{
+		Type: JobDeleteChangeEvent,
+		Conf: jobConf,
+	})
+
+}
+
+// add job conf
 func (manager *JobManager) AddJob(jobConf *JobConf) (err error) {
 
 	var (
@@ -81,6 +160,7 @@ func (manager *JobManager) AddJob(jobConf *JobConf) (err error) {
 	return
 }
 
+// edit job conf
 func (manager *JobManager) editJob(jobConf *JobConf) (err error) {
 
 	var (
@@ -127,6 +207,7 @@ func (manager *JobManager) editJob(jobConf *JobConf) (err error) {
 	return
 }
 
+// delete job conf
 func (manager *JobManager) deleteJob(jobConf *JobConf) (err error) {
 
 	var (
@@ -151,6 +232,7 @@ func (manager *JobManager) deleteJob(jobConf *JobConf) (err error) {
 	return
 }
 
+// job list
 func (manager *JobManager) jobList() (jobConfs []*JobConf, err error) {
 
 	var (
@@ -181,6 +263,7 @@ func (manager *JobManager) jobList() (jobConfs []*JobConf, err error) {
 	return
 }
 
+// add group
 func (manager *JobManager) addGroup(groupConf *GroupConf) (err error) {
 
 	var (
@@ -204,6 +287,7 @@ func (manager *JobManager) addGroup(groupConf *GroupConf) (err error) {
 
 }
 
+// group list
 func (manager *JobManager) groupList() (groupConfs []*GroupConf, err error) {
 
 	var (
@@ -234,6 +318,7 @@ func (manager *JobManager) groupList() (groupConfs []*GroupConf, err error) {
 	return
 }
 
+// node list
 func (manager *JobManager) nodeList() (nodes []string, err error) {
 
 	var (

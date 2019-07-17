@@ -2,7 +2,7 @@ package forest
 
 import (
 	"fmt"
-	"log"
+	"github.com/labstack/gommon/log"
 	"time"
 )
 
@@ -22,6 +22,7 @@ type JobNode struct {
 	apiAddress   string
 	api          *JobAPi
 	manager      *JobManager
+	scheduler    *JobScheduler
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -36,6 +37,8 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 	}
 
 	node.init()
+
+	node.scheduler = NewJobScheduler(node)
 
 	// create job manager 
 	node.manager = NewJobManager(node)

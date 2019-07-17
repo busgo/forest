@@ -2,13 +2,26 @@ package forest
 
 import (
 	"context"
+	"github.com/robfig/cron"
 	"go.etcd.io/etcd/clientv3"
+	"time"
 )
 
 const (
 	KeyCreateChangeEvent = iota
 	KeyUpdateChangeEvent
 	KeyDeleteChangeEvent
+)
+
+const (
+	JobCreateChangeEvent = iota
+	JobUpdateChangeEvent
+	JobDeleteChangeEvent
+)
+
+const (
+	JobRunningStatus = iota + 1
+	JobStopStatus
 )
 
 const (
@@ -60,4 +73,24 @@ type Result struct {
 type GroupConf struct {
 	Name   string `json:"name"`
 	Remark string `json:"remark"`
+}
+
+type JobChangeEvent struct {
+	Type int
+	Conf *JobConf
+}
+
+type SchedulePlan struct {
+	Id         string `json:"id"`
+	Name       string `json:"name"`
+	Group      string `json:"group"`
+	Cron       string `json:"cron"`
+	Status     int    `json:"status"`
+	Target     string `json:"target"`
+	Params     string `json:"params"`
+	Mobile     string `json:"mobile"`
+	Remark     string `json:"remark"`
+	schedule   cron.Schedule
+	NextTime   time.Time
+	BeforeTime time.Time
 }
