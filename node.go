@@ -37,7 +37,7 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 		apiAddress:   ":8888",
 	}
 
-	node.init()
+	node.initNode()
 
 	// create  group manager
 	node.groupManager = NewJobGroupManager(node)
@@ -50,11 +50,13 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 	// create a job http api
 	node.api = NewJobAPi(node)
 
+	node.initEnv()
+
 	return
 }
 
 // start register node
-func (node *JobNode) init() {
+func (node *JobNode) initNode() {
 	txResponse, err := node.registerJobNode()
 	if err != nil {
 		log.Fatalf("the job node:%s, fail register to :%s", node.id, node.registerPath)
@@ -68,6 +70,13 @@ func (node *JobNode) init() {
 	node.watchElectPath()
 	go node.loopStartElect()
 
+}
+
+// init env
+func (node *JobNode) initEnv() {
+
+	go node.groupManager.loopLoadGroups()
+	go node.manager.loopLoadJobConf()
 }
 
 // watch the register job node

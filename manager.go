@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	JobConfPath   = "/forest/server/conf/"
+	JobConfPath = "/forest/server/conf/"
 )
 
 type JobManager struct {
@@ -26,7 +26,7 @@ func NewJobManager(node *JobNode) (manager *JobManager) {
 
 }
 
-func (manager JobManager) watchJobConfPath() {
+func (manager *JobManager) watchJobConfPath() {
 
 	keyChangeEventResponse := manager.node.etcd.WatchWithPrefixKey(JobConfPath)
 
@@ -36,12 +36,45 @@ func (manager JobManager) watchJobConfPath() {
 	}
 }
 
+func (manager *JobManager) loopLoadJobConf() {
+
+RETRY:
+	var (
+		keys   [][]byte
+		values [][]byte
+		err    error
+	)
+	if keys, values, err = manager.node.etcd.GetWithPrefixKey(JobConfPath); err != nil {
+
+		goto RETRY
+	}
+
+	if len(keys) == 0 {
+		return
+	}
+
+	log.Infof("values:%#v", values)
+	for i := 0; i < len(keys); i++ {
+		jobConf, err := UParkJobConf(values[i])
+		if err != nil {
+			log.Warnf("upark the job conf error:%#v", err)
+			continue
+		}
+		manager.node.scheduler.pushJobChangeEvent(&JobChangeEvent{
+			Type: JobCreateChangeEvent,
+			Conf: jobConf,
+		})
+
+	}
+
+}
+
 func (manager *JobManager) handleJobConfChangeEvent(changeEvent *KeyChangeEvent) {
 
 	switch changeEvent.Type {
 
 	case KeyCreateChangeEvent:
-		
+
 		manager.handleJobCreateEvent(changeEvent.Value)
 	case KeyUpdateChangeEvent:
 

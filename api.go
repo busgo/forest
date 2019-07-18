@@ -24,7 +24,9 @@ func NewJobAPi(node *JobNode) (api *JobAPi) {
 	e.POST("/group/add", api.addGroup)
 	e.POST("/group/list", api.groupList)
 	e.POST("/node/list", api.nodeList)
-	go e.Logger.Fatal(e.Start(node.apiAddress))
+	go func() {
+		e.Logger.Fatal(e.Start(node.apiAddress))
+	}()
 	api.echo = e
 	return
 }
