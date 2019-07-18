@@ -94,3 +94,17 @@ type SchedulePlan struct {
 	NextTime   time.Time
 	BeforeTime time.Time
 }
+
+type JobSnapshot struct {
+	Id        string    `json:"id"`
+	JobId     string    `json:"jobId"`
+	Name      string    `json:"name"`
+	Group     string    `json:"group"`
+	Cron      string    `json:"cron"`
+	Status    int       `json:"status"`
+	Target    string    `json:"target"`
+	Params    string    `json:"params"`
+	Mobile    string    `json:"mobile"`
+	Remark    string    `json:"remark"`
+	StartTime time.Time `json:"startTime"`
+}

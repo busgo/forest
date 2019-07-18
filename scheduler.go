@@ -85,6 +85,7 @@ func (sch *JobScheduler) handleJobCreateEvent(event *JobChangeEvent) {
 	plan := &SchedulePlan{
 		Id:       jobConf.Id,
 		Name:     jobConf.Name,
+		Group:    jobConf.Group,
 		Cron:     jobConf.Cron,
 		Target:   jobConf.Target,
 		Params:   jobConf.Params,
@@ -134,6 +135,7 @@ func (sch *JobScheduler) handleJobUpdateEvent(event *JobChangeEvent) {
 	plan := &SchedulePlan{
 		Id:       jobConf.Id,
 		Name:     jobConf.Name,
+		Group:    jobConf.Group,
 		Cron:     jobConf.Cron,
 		Target:   jobConf.Target,
 		Params:   jobConf.Params,
@@ -214,6 +216,20 @@ func (sch *JobScheduler) trySchedule() time.Duration {
 		scheduleTime := plan.NextTime
 		if scheduleTime.Before(now) {
 			log.Infof("schedule execute the plan:%#v", plan)
+
+			snapshot := &JobSnapshot{
+				Id:        GenerateSerialNo(),
+				JobId:     plan.Id,
+				Name:      plan.Name,
+				Group:     plan.Group,
+				Cron:      plan.Cron,
+				Target:    plan.Target,
+				Params:    plan.Params,
+				Mobile:    plan.Mobile,
+				Remark:    plan.Remark,
+				StartTime: now,
+			}
+			sch.node.exec.pushSnapshot(snapshot)
 		}
 		nextTime := plan.schedule.Next(now)
 		plan.NextTime = nextTime

@@ -24,6 +24,7 @@ type JobNode struct {
 	manager      *JobManager
 	scheduler    *JobScheduler
 	groupManager *JobGroupManager
+	exec *JobExecutor
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -39,6 +40,8 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 
 	node.initNode()
 
+	// create job executor
+	node.exec = NewJobExecutor(node)
 	// create  group manager
 	node.groupManager = NewJobGroupManager(node)
 

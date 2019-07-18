@@ -2,9 +2,11 @@ package forest
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/labstack/gommon/log"
 	"go.etcd.io/etcd/clientv3"
+	"math/rand"
 	"sync"
 )
 
@@ -148,6 +150,22 @@ func (mgr *JobGroupManager) handleGroupDeleteEvent(changeEvent *KeyChangeEvent) 
 	mgr.deleteGroup(path)
 }
 
+func (mgr *JobGroupManager) selectClient(name string) (client *Client, err error) {
+
+	var (
+		group *Group
+		ok    bool
+	)
+
+	if group, ok = mgr.groups[GroupConfPath+name]; !ok {
+		err = errors.New(fmt.Sprintf("the group:%s not found", name))
+		return
+	}
+
+	return group.selectClient()
+
+}
+
 type Group struct {
 	path       string
 	name       string
@@ -237,6 +255,35 @@ func (group *Group) deleteClient(path string) {
 	}
 
 	delete(group.clients, path)
+
+}
+
+func (group *Group) selectClient() (client *Client, err error) {
+	group.lk.RLock()
+	defer group.lk.RUnlock()
+
+	if len(group.clients) == 0 {
+		err = errors.New(fmt.Sprintf("the group:%s,has no client to select", group.name))
+		return
+	}
+
+	num := len(group.clients)
+
+	pos := rand.Intn(num)
+
+	index := 0
+
+	for _, c := range group.clients {
+
+		if index == pos {
+
+			client = c
+			return
+		}
+		index++
+	}
+
+	return
 
 }
 

@@ -31,8 +31,6 @@ func UParkJobConf(value []byte) (jobConf *JobConf, err error) {
 	return
 }
 
-
-
 func ParkGroupConf(groupConf *GroupConf) (value []byte, err error) {
 
 	value, err = json.Marshal(groupConf)
@@ -46,3 +44,15 @@ func UParkGroupConf(value []byte) (groupConf *GroupConf, err error) {
 	return
 }
 
+func ParkJobSnapshot(snapshot *JobSnapshot) (value []byte, err error) {
+
+	value, err = json.Marshal(snapshot)
+	return
+}
+
+func UParkJobSnapshot(value []byte) (snapshot *JobSnapshot, err error) {
+
+	snapshot = new(JobSnapshot)
+	err = json.Unmarshal(value, snapshot)
+	return
+}
