@@ -23,6 +23,7 @@ type JobNode struct {
 	api          *JobAPi
 	manager      *JobManager
 	scheduler    *JobScheduler
+	groupManager *JobGroupManager
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -37,6 +38,9 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 	}
 
 	node.init()
+
+	// create  group manager
+	node.groupManager = NewJobGroupManager(node)
 
 	node.scheduler = NewJobScheduler(node)
 

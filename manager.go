@@ -8,7 +8,6 @@ import (
 
 const (
 	JobConfPath   = "/forest/server/conf/"
-	GroupConfPath = "/forest/server/group/"
 )
 
 type JobManager struct {
