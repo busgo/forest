@@ -8,6 +8,7 @@ import (
 	"go.etcd.io/etcd/clientv3"
 	"math/rand"
 	"sync"
+	"time"
 )
 
 const (
@@ -191,6 +192,8 @@ func NewGroup(name, path string, node *JobNode) (group *Group) {
 
 	go group.watchClientPath()
 
+	go group.loopLoadAllClient()
+
 	return
 }
 
@@ -204,6 +207,40 @@ func (group *Group) watchClientPath() {
 
 		group.handleClientChangeEvent(ch)
 
+	}
+
+}
+
+// loop load all client
+func (group *Group) loopLoadAllClient() {
+
+RETRY:
+	var (
+		keys   [][]byte
+		values [][]byte
+		err    error
+	)
+
+	prefix := fmt.Sprintf(ClientPath, group.name)
+	if keys, values, err = group.node.etcd.GetWithPrefixKey(prefix); err != nil {
+
+		time.Sleep(time.Second)
+		goto RETRY
+	}
+
+	if len(keys) == 0 {
+		return
+	}
+
+	for i := 0; i < len(keys); i++ {
+		path := string(keys[i])
+		value := string(values[i])
+		if value == "" {
+			log.Warnf("the client value is nil for path:%s", path)
+			continue
+		}
+
+		group.addClient(value, path)
 	}
 
 }

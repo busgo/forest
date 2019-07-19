@@ -47,7 +47,7 @@ func (exec *JobExecutor) handleJobSnapshot(snapshot *JobSnapshot) {
 
 	clientName := client.name
 
-	snapshotPath := fmt.Sprintf(JobClientSnapshotPath, group, clientName)
+	snapshotPath := fmt.Sprintf(JobClientSnapshotPath+"/", group, clientName)
 
 	value, err := ParkJobSnapshot(snapshot)
 	if err != nil {
