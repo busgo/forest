@@ -214,7 +214,7 @@ func (sch *JobScheduler) trySchedule() time.Duration {
 	for _, plan := range sch.schedulePlans {
 
 		scheduleTime := plan.NextTime
-		if scheduleTime.Before(now) {
+		if scheduleTime.Before(now) && sch.node.state == NodeLeaderState {
 			log.Infof("schedule execute the plan:%#v", plan)
 
 			snapshot := &JobSnapshot{

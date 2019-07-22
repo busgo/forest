@@ -2,6 +2,7 @@ package forest
 
 import (
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/robfig/cron"
 	"net/http"
 )
@@ -17,6 +18,10 @@ func NewJobAPi(node *JobNode) (api *JobAPi) {
 		node: node,
 	}
 	e := echo.New()
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*", "*"},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAccessControlAllowOrigin},
+	}))
 	e.POST("/job/add", api.AddJob)
 	e.POST("/job/edit", api.editJob)
 	e.POST("/job/delete", api.deleteJob)

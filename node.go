@@ -24,7 +24,7 @@ type JobNode struct {
 	manager      *JobManager
 	scheduler    *JobScheduler
 	groupManager *JobGroupManager
-	exec *JobExecutor
+	exec         *JobExecutor
 }
 
 func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
@@ -35,7 +35,7 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 		electPath:    JobNodeElectPath,
 		etcd:         etcd,
 		state:        NodeFollowerState,
-		apiAddress:   ":8888",
+		apiAddress:   ":8887",
 	}
 
 	node.initNode()
@@ -47,7 +47,7 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 
 	node.scheduler = NewJobScheduler(node)
 
-	// create job manager 
+	// create job manager
 	node.manager = NewJobManager(node)
 
 	// create a job http api
