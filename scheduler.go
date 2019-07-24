@@ -23,21 +23,9 @@ func NewJobScheduler(node *JobNode) (sch *JobScheduler) {
 		schedulePlans: make(map[string]*SchedulePlan),
 		lk:            &sync.RWMutex{},
 	}
-
-	go sch.lookup()
 	go sch.loopSchedule()
 
 	return
-}
-
-// look up the job change event chan
-func (sch *JobScheduler) lookup() {
-
-	log.Printf("the job scheduler init success!")
-	for event := range sch.eventChan {
-
-		sch.handleJobChangeEvent(event)
-	}
 }
 
 // handle the job change event
@@ -55,49 +43,9 @@ func (sch *JobScheduler) handleJobChangeEvent(event *JobChangeEvent) {
 
 // handle the job create event
 func (sch *JobScheduler) handleJobCreateEvent(event *JobChangeEvent) {
-
-	var (
-		err      error
-		schedule cron.Schedule
-	)
 	sch.lk.Lock()
 	defer sch.lk.Unlock()
-
-	jobConf := event.Conf
-
-	if _, ok := sch.schedulePlans[jobConf.Id]; ok {
-		log.Warnf("the job conf:%#v exist", jobConf)
-		return
-	}
-
-	if jobConf.Status == JobStopStatus {
-
-		log.Warnf("the job conf:%#v status is stop", jobConf)
-		return
-	}
-
-	if schedule, err = cron.Parse(jobConf.Cron); err != nil {
-		log.Errorf("the job conf:%#v cron is error exp ", jobConf)
-		return
-	}
-
-	// build schedule plan
-	plan := &SchedulePlan{
-		Id:       jobConf.Id,
-		Name:     jobConf.Name,
-		Group:    jobConf.Group,
-		Cron:     jobConf.Cron,
-		Target:   jobConf.Target,
-		Params:   jobConf.Params,
-		Mobile:   jobConf.Mobile,
-		Remark:   jobConf.Remark,
-		schedule: schedule,
-		NextTime: schedule.Next(time.Now()),
-	}
-
-	sch.schedulePlans[jobConf.Id] = plan
-
-	log.Printf("the job conf:%#v create a new schedule plan:%#v", jobConf, plan)
+	sch.createJobPlan(event)
 
 }
 
@@ -114,7 +62,12 @@ func (sch *JobScheduler) handleJobUpdateEvent(event *JobChangeEvent) {
 	jobConf := event.Conf
 
 	if _, ok := sch.schedulePlans[jobConf.Id]; !ok {
-		log.Errorf("the job conf:%#v not  exist", jobConf)
+		log.Warnf("the job conf:%#v not  exist", jobConf)
+		log.Warnf("the job conf:%#v change job create event", jobConf)
+		sch.createJobPlan(&JobChangeEvent{
+			Type: JobCreateChangeEvent,
+			Conf: jobConf,
+		})
 		return
 	}
 
@@ -171,6 +124,50 @@ func (sch *JobScheduler) handleJobDeleteEvent(event *JobChangeEvent) {
 
 }
 
+func (sch *JobScheduler) createJobPlan(event *JobChangeEvent) {
+
+	var (
+		err      error
+		schedule cron.Schedule
+	)
+
+	jobConf := event.Conf
+
+	if _, ok := sch.schedulePlans[jobConf.Id]; ok {
+		log.Warnf("the job conf:%#v exist", jobConf)
+		return
+	}
+
+	if jobConf.Status == JobStopStatus {
+
+		log.Warnf("the job conf:%#v status is stop", jobConf)
+		return
+	}
+
+	if schedule, err = cron.Parse(jobConf.Cron); err != nil {
+		log.Errorf("the job conf:%#v cron is error exp ", jobConf)
+		return
+	}
+
+	// build schedule plan
+	plan := &SchedulePlan{
+		Id:       jobConf.Id,
+		Name:     jobConf.Name,
+		Group:    jobConf.Group,
+		Cron:     jobConf.Cron,
+		Target:   jobConf.Target,
+		Params:   jobConf.Params,
+		Mobile:   jobConf.Mobile,
+		Remark:   jobConf.Remark,
+		schedule: schedule,
+		NextTime: schedule.Next(time.Now()),
+	}
+
+	sch.schedulePlans[jobConf.Id] = plan
+
+	log.Printf("the job conf:%#v create a new schedule plan:%#v", jobConf, plan)
+}
+
 // push a job change event
 func (sch *JobScheduler) pushJobChangeEvent(event *JobChangeEvent) {
 
@@ -188,6 +185,9 @@ func (sch *JobScheduler) loopSchedule() {
 
 		case <-timer.C:
 
+		case event := <-sch.eventChan:
+
+			sch.handleJobChangeEvent(event)
 		}
 
 		durationTime := sch.trySchedule()
