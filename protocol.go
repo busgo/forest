@@ -91,14 +91,15 @@ type SchedulePlan struct {
 	Mobile     string `json:"mobile"`
 	Remark     string `json:"remark"`
 	schedule   cron.Schedule
-	NextTime   time.Time
-	BeforeTime time.Time
+	NextTime   time.Time `json:"nextTime"`
+	BeforeTime time.Time `json:"beforeTime"`
 }
 
 type JobSnapshot struct {
 	Id        string    `json:"id"`
 	JobId     string    `json:"jobId"`
 	Name      string    `json:"name"`
+	Ip        string    `json:"ip"`
 	Group     string    `json:"group"`
 	Cron      string    `json:"cron"`
 	Status    int       `json:"status"`
@@ -107,4 +108,25 @@ type JobSnapshot struct {
 	Mobile    string    `json:"mobile"`
 	Remark    string    `json:"remark"`
 	StartTime time.Time `json:"startTime"`
+}
+
+type QueryClientParam struct {
+	Group string `json:"group"`
+}
+
+type JobClient struct {
+	Name  string `json:"name"`
+	Path  string `json:"path"`
+	Group string `json:"group"`
+}
+type QuerySnapshotParam struct {
+	Group string `json:"group"`
+	Id    string `json:"id"`
+	Ip    string `json:"ip"`
+}
+
+// node
+type Node struct {
+	Name  string `json:"name"`
+	State int    `json:"state"`
 }

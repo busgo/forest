@@ -1,6 +1,7 @@
 package forest
 
 import (
+	"fmt"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/robfig/cron"
@@ -29,6 +30,10 @@ func NewJobAPi(node *JobNode) (api *JobAPi) {
 	e.POST("/group/add", api.addGroup)
 	e.POST("/group/list", api.groupList)
 	e.POST("/node/list", api.nodeList)
+	e.POST("/plan/list", api.planList)
+	e.POST("/client/list", api.clientList)
+	e.POST("/snapshot/list", api.snapshotList)
+	e.POST("/snapshot/delete", api.snapshotDelete)
 	go func() {
 		e.Logger.Fatal(e.Start(node.apiAddress))
 	}()
@@ -241,13 +246,188 @@ func (api *JobAPi) groupList(context echo.Context) (err error) {
 func (api *JobAPi) nodeList(context echo.Context) (err error) {
 
 	var (
-		nodes []string
+		nodes     []*Node
+		leader    []byte
+		nodeNames []string
 	)
 
-	if nodes, err = api.node.manager.nodeList(); err != nil {
+	if nodeNames, err = api.node.manager.nodeList(); err != nil {
 		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+
+	if leader, err = api.node.etcd.Get(JobNodeElectPath); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+
+	if len(nodeNames) == 0 {
+		return context.JSON(http.StatusOK, Result{Code: 0, Data: nodes, Message: "查询成成功"})
+	}
+
+	nodes = make([]*Node, 0)
+
+	for _, name := range nodeNames {
+
+		if name == string(leader) {
+			nodes = append(nodes, &Node{Name: name, State: NodeLeaderState})
+		} else {
+			nodes = append(nodes, &Node{Name: name, State: NodeFollowerState})
+		}
+
 	}
 
 	return context.JSON(http.StatusOK, Result{Code: 0, Data: nodes, Message: "查询成成功"})
 
+}
+
+func (api *JobAPi) planList(context echo.Context) (err error) {
+
+	var (
+		plans []*SchedulePlan
+	)
+	schedulePlans := api.node.scheduler.schedulePlans
+	if len(schedulePlans) == 0 {
+
+		return context.JSON(http.StatusOK, Result{Code: 0, Data: plans})
+
+	}
+
+	plans = make([]*SchedulePlan, 0)
+
+	for _, p := range schedulePlans {
+
+		plans = append(plans, p)
+
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: plans})
+}
+
+func (api *JobAPi) clientList(context echo.Context) (err error) {
+
+	var (
+		query     *QueryClientParam
+		message   string
+		group     *Group
+		clients   []*JobClient
+		groupPath string
+	)
+
+	query = new(QueryClientParam)
+	if err = context.Bind(query); err != nil {
+		message = "请选择任务集群"
+		goto ERROR
+	}
+
+	if query.Group == "" {
+		message = "请选择任务集群"
+		goto ERROR
+	}
+	groupPath = fmt.Sprintf("%s%s", GroupConfPath, query.Group)
+	if group = api.node.groupManager.groups[groupPath]; group == nil {
+		message = "此任务集群不存在"
+		goto ERROR
+	}
+
+	clients = make([]*JobClient, 0)
+
+	for _, c := range group.clients {
+
+		clients = append(clients, &JobClient{Name: c.name, Path: c.path, Group: query.Group})
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: clients, Message: "查询成成功"})
+
+ERROR:
+	return context.JSON(http.StatusOK, Result{Code: -1, Message: message})
+}
+
+// 任务快照
+func (api *JobAPi) snapshotList(context echo.Context) (err error) {
+
+	var (
+		query     *QuerySnapshotParam
+		message   string
+		keys      [][]byte
+		values    [][]byte
+		snapshots []*JobSnapshot
+		prefix    string
+	)
+
+	query = new(QuerySnapshotParam)
+	if err = context.Bind(query); err != nil {
+		message = "非法的请求参数"
+		goto ERROR
+	}
+
+	prefix = JobSnapshotPath
+	if query.Group != "" && query.Id != "" && query.Ip != "" {
+		prefix = fmt.Sprintf(JobClientSnapshotPath, query.Group, query.Ip)
+		prefix = fmt.Sprintf("%s/%s", prefix, query.Id)
+	} else if query.Group != "" && query.Ip != "" {
+		prefix = fmt.Sprintf(JobClientSnapshotPath, query.Group, query.Ip)
+	} else if query.Group != "" && query.Ip == "" {
+		prefix = fmt.Sprintf(JobSnapshotGroupPath, query.Group)
+	}
+
+	if keys, values, err = api.node.etcd.GetWithPrefixKeyLimit(prefix, 500); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+
+	snapshots = make([]*JobSnapshot, 0)
+	if len(keys) == 0 {
+		return context.JSON(http.StatusOK, Result{Code: 0, Data: snapshots, Message: "查询成成功"})
+	}
+
+	for _, value := range values {
+
+		if len(value) == 0 {
+			continue
+		}
+		var snapshot *JobSnapshot
+
+		if snapshot, err = UParkJobSnapshot(value); err != nil {
+			continue
+		}
+
+		snapshots = append(snapshots, snapshot)
+
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Data: snapshots, Message: "查询成成功"})
+
+ERROR:
+	return context.JSON(http.StatusOK, Result{Code: -1, Message: message})
+}
+
+// 任务删除任务快照
+func (api *JobAPi) snapshotDelete(context echo.Context) (err error) {
+
+	var (
+		query   *QuerySnapshotParam
+		message string
+		key     string
+	)
+
+	query = new(QuerySnapshotParam)
+	if err = context.Bind(query); err != nil {
+		message = "非法的请求参数"
+		goto ERROR
+	}
+
+	if query.Group == "" || query.Id == "" || query.Ip == "" {
+		message = "非法的请求参数"
+		goto ERROR
+	}
+
+	key = fmt.Sprintf(JobClientSnapshotPath, query.Group, query.Ip)
+	key = fmt.Sprintf("%s/%s", key, query.Id)
+	if err = api.node.etcd.Delete(key); err != nil {
+		message = err.Error()
+		goto ERROR
+	}
+	return context.JSON(http.StatusOK, Result{Code: 0, Message: "删除成功"})
+
+ERROR:
+	return context.JSON(http.StatusOK, Result{Code: -1, Message: message})
 }

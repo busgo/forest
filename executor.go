@@ -6,6 +6,8 @@ import (
 )
 
 const (
+	JobSnapshotPath       = "/forest/client/snapshot/"
+	JobSnapshotGroupPath  = "/forest/client/snapshot/%s/"
 	JobClientSnapshotPath = "/forest/client/snapshot/%s/%s"
 )
 
@@ -46,7 +48,7 @@ func (exec *JobExecutor) handleJobSnapshot(snapshot *JobSnapshot) {
 	}
 
 	clientName := client.name
-
+	snapshot.Ip = clientName
 	snapshotPath := fmt.Sprintf(JobClientSnapshotPath+"/", group, clientName)
 
 	value, err := ParkJobSnapshot(snapshot)

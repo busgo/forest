@@ -94,6 +94,35 @@ func (etcd *Etcd) GetWithPrefixKey(prefixKey string) (keys [][]byte, values [][]
 
 }
 
+// get values from  prefixKey limit
+func (etcd *Etcd) GetWithPrefixKeyLimit(prefixKey string, limit int64) (keys [][]byte, values [][]byte, err error) {
+
+	var (
+		getResponse *clientv3.GetResponse
+	)
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	if getResponse, err = etcd.kv.Get(ctx, prefixKey, clientv3.WithPrefix(), clientv3.WithLimit(limit)); err != nil {
+		return
+	}
+
+	if len(getResponse.Kvs) == 0 {
+		return
+	}
+
+	keys = make([][]byte, 0)
+	values = make([][]byte, 0)
+
+	for i := 0; i < len(getResponse.Kvs); i++ {
+		keys = append(keys, getResponse.Kvs[i].Key)
+		values = append(values, getResponse.Kvs[i].Value)
+	}
+
+	return
+
+}
+
 // put a key
 func (etcd *Etcd) Put(key, value string) (err error) {
 
@@ -119,7 +148,6 @@ func (etcd *Etcd) PutNotExist(key, value string) (success bool, oldValue []byte,
 	txn := etcd.client.Txn(ctx)
 
 	txnResponse, err = txn.If(clientv3.Compare(clientv3.Version(key), "=", 0)).
-
 		Then(clientv3.OpPut(key, value)).
 		Else(clientv3.OpGet(key)).
 		Commit()
