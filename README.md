@@ -57,14 +57,11 @@ go: finding gopkg.in/yaml.v2 v2.2.1
 > 如果下载依赖库出现超时问题,请重复执行编译命令直到成功为止。
 
 
-
 查看命令行参数
 
 ```go
 
- ./forest -help
 appledeMacBook-Pro:forest apple$ ./forest  -help
-192.168.10.35
 flag needs an argument: -help
 Usage of ./forest:
   -etcd-dailtimeout int
@@ -77,4 +74,35 @@ Usage of ./forest:
     	http address (default ":2856")
 appledeMacBook-Pro:forest apple$
 ```
+
+启动服务
+
+```go
+
+nohup etcd  > etcd.log 2>&1 & 
+	
+nohup forest  > forest.log 2>&1 & 
+	
+appledeMacBook-Pro:forest apple$ tail -500f forest.log 
+{"time":"2019-07-25T15:05:40.041263+08:00","level":"-","prefix":"-","file":"node.go","line":"71","message":"the job node:192.168.10.35, success register to :/forest/server/node/192.168.10.35"}
+
+   ____    __
+  / __/___/ /  ___
+ / _// __/ _ \/ _ \
+/___/\__/_//_/\___/ v3.3.10-dev
+High performance, minimalist Go web framework
+https://echo.labstack.com
+____________________________________O/_______
+                                    O\
+{"time":"2019-07-25T15:05:40.046041+08:00","level":"INFO","prefix":"-","file":"group.go","line":"92","message":"add a new group:account,for path:/forest/server/group/account"}
+{"time":"2019-07-25T15:05:40.046172+08:00","level":"INFO","prefix":"-","file":"group.go","line":"92","message":"add a new group:order,for path:/forest/server/group/order"}
+{"time":"2019-07-25T15:05:40.049989+08:00","level":"-","prefix":"-","file":"node.go","line":"210","message":"the job node:192.168.10.35,elect  success to :/forest/server/elect/leader"}
+{"time":"2019-07-25T15:05:40.050021+08:00","level":"INFO","prefix":"-","file":"group.go","line":"92","message":"add a new group:trade,for path:/forest/server/group/trade"}
+⇨ http server started on [::]:2856
+
+```
+
+
+
+
 
