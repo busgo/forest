@@ -142,3 +142,12 @@ ____________________________________O/_______
     npm run-script build
  ```
 
+
+####    管理任务
+
+
+#####   任务配置管理
+
+![任务配置管理](https://github.com/busgo/forest/blob/master/screenshot/job.png)
+
+
