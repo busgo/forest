@@ -11,9 +11,23 @@
 
 ![架构1](https://github.com/busgo/forest/raw/master/screenshot/arch-1.jpg)
 
-//TODO
+
 
 ![架构2](https://github.com/busgo/forest/raw/master/screenshot/arch-2.jpg)
+
+##  角色
+
+### Job Node Leader 
+
+任务调度集群负责任务的配置管理、监控、任务统计、故障转移以及任务分发工作。整个任务调度集群只有一台 Job Node 是 Leader。
+
+### Job Node Follower 
+
+任务调度集群负责任务的配置管理以及监控，整个任务调度集群可以有 N 台 Job Node 是 Follower。没有故障转移、任务分发能力，当Job Node Leader 不可用下线后触发选举，才有机会成为Leader节点。
+
+
+
+
 
 ### 选举
 由于一个任务调度集群有多台提供服务，我们在可以从集群节点中选举出一台领导节点来进行发号师令，比较成熟的选举算法(Paxos、Raft 等)这里不做讨论。这里使用etcd中的租约机制来实现选举功能。
