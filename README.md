@@ -150,4 +150,29 @@ ____________________________________O/_______
 
 ![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/job.jpg)
 
+######  新建任务
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/addJob.jpg)
+
+
+####### 任务集群
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/group.jpg)
+
+####### 任务执行计划
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/plan.jpg)
+####### 调度集群
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/node.jpg)
+
+####### 任务快照
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/snapshot.jpg)
+
+####### 任务客户端节点
+
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/clients.jpg)
+
+
 
