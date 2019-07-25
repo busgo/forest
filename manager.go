@@ -53,7 +53,6 @@ RETRY:
 		return
 	}
 
-	log.Infof("values:%#v", values)
 	for i := 0; i < len(keys); i++ {
 		jobConf, err := UParkJobConf(values[i])
 		if err != nil {

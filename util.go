@@ -3,7 +3,9 @@ package forest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/labstack/gommon/log"
 	"math/rand"
+	"net"
 	"time"
 )
 
@@ -54,5 +56,25 @@ func UParkJobSnapshot(value []byte) (snapshot *JobSnapshot, err error) {
 
 	snapshot = new(JobSnapshot)
 	err = json.Unmarshal(value, snapshot)
+	return
+}
+
+func GetLocalIpAddress() (ip string) {
+
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		log.Warnf("err:%#v", err)
+		return
+	}
+	for _, value := range addrs {
+		if ipnet, ok := value.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip = ipnet.IP.String()
+				return
+			}
+		}
+	}
+
+	ip = "127.0.0.1"
 	return
 }

@@ -25,9 +25,10 @@ type JobNode struct {
 	scheduler    *JobScheduler
 	groupManager *JobGroupManager
 	exec         *JobExecutor
+	close        chan bool
 }
 
-func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
+func NewJobNode(id string, etcd *Etcd, httpAddress string) (node *JobNode, err error) {
 
 	node = &JobNode{
 		id:           id,
@@ -35,7 +36,8 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 		electPath:    JobNodeElectPath,
 		etcd:         etcd,
 		state:        NodeFollowerState,
-		apiAddress:   ":8887",
+		apiAddress:   httpAddress,
+		close:        make(chan bool),
 	}
 
 	node.initNode()
@@ -52,8 +54,6 @@ func NewJobNode(id string, etcd *Etcd) (node *JobNode, err error) {
 
 	// create a job http api
 	node.api = NewJobAPi(node)
-
-	node.initEnv()
 
 	return
 }
@@ -75,11 +75,18 @@ func (node *JobNode) initNode() {
 
 }
 
-// init env
-func (node *JobNode) initEnv() {
+// bootstrap
+func (node *JobNode) Bootstrap() {
 
 	go node.groupManager.loopLoadGroups()
 	go node.manager.loopLoadJobConf()
+
+	<-node.close
+}
+
+func (node *JobNode) Close() {
+
+	node.close <- true
 }
 
 // watch the register job node
