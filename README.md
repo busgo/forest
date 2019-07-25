@@ -21,4 +21,37 @@
 
 ####    先决条件
    *    golang(>=1.11)
-   *
+   *    git 
+   
+####    源代码安装
+
+```shell
+    git clone https://github.com/busgo/forest.git
+    cd forest/forest
+    go build forest.go
+```
+等待自动下载依赖库文件
+
+```go
+
+
+appledeMacBook-Pro:forest apple$ go build forest.go 
+go: finding github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2
+go: finding github.com/dgrijalva/jwt-go v3.2.0+incompatible
+go: finding github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6
+go: finding github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f
+go: finding github.com/coreos/go-systemd v0.0.0-20190620071333-e64a0ec8b42a
+go: finding github.com/prometheus/client_golang v1.0.0
+go: finding github.com/coreos/bbolt v1.3.3
+go: finding github.com/prometheus/common v0.4.1
+go: finding github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
+go: finding github.com/coreos/etcd v3.3.13+incompatible
+go: finding github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5
+go: finding github.com/grpc-ecosystem/grpc-gateway v1.9.4
+go: finding github.com/gogo/protobuf v1.1.1
+go: finding github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+go: finding github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d
+go: finding gopkg.in/yaml.v2 v2.2.1
+...
+```
+
