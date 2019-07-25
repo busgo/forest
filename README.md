@@ -172,6 +172,13 @@ ____________________________________O/_______
 ![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/clients.jpg)
 
 
+##  待完善
+
+1.  任务故障转移
+2.  任务执行日志收集
+3.  任务调度sdk
+
+
 
 ##  联系方式
 
