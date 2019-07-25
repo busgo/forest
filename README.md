@@ -102,7 +102,20 @@ ____________________________________O/_______
 
 ```
 
+交叉编译
 
+```shell
+  
+  # mac os 
+  GOOS=darwin GOARCH=amd64 go build forest.go
+   
+  # linux
+  GOOS=linux GOARCH=amd64 go build forest.go
+    
+  # windows
+  GOOS=windows GOARCH=amd64 go build forest.go
+
+```
 
 
 
