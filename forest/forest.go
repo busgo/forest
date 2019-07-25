@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/busgo/forest"
 	"github.com/prometheus/common/log"
 	"strings"
@@ -22,8 +21,6 @@ func main() {
 		log.Fatal("has no get the ip address")
 
 	}
-
-	fmt.Println(ip)
 
 	endpoints := flag.String("etcd-endpoints", DefaultEndpoints, "etcd endpoints")
 	httpAddress := flag.String("http-address", DefaultHttpAddress, "http address")

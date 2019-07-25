@@ -34,7 +34,6 @@
 
 ```go
 
-
 appledeMacBook-Pro:forest apple$ go build forest.go 
 go: finding github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2
 go: finding github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -53,5 +52,29 @@ go: finding github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 go: finding github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d
 go: finding gopkg.in/yaml.v2 v2.2.1
 ...
+```
+
+> 如果下载依赖库出现超时问题,请重复执行编译命令直到成功为止。
+
+
+
+查看命令行参数
+
+```go
+
+ ./forest -help
+appledeMacBook-Pro:forest apple$ ./forest  -help
+192.168.10.35
+flag needs an argument: -help
+Usage of ./forest:
+  -etcd-dailtimeout int
+    	etcd dailtimeout (default 5)
+  -etcd-endpoints string
+    	etcd endpoints (default "127.0.0.1:2379")
+  -help string
+    	forest help
+  -http-address string
+    	http address (default ":2856")
+appledeMacBook-Pro:forest apple$
 ```
 
