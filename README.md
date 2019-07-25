@@ -179,6 +179,7 @@ ____________________________________O/_______
 >   /forest/client/snapshot/%s/%s/%s
 
 分配任务快照信息放入此目录下
+
 such as  /forest/client/snapshot/trade/192.168.1.1/201901011111111323
 
 
