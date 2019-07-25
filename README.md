@@ -30,7 +30,7 @@
     cd forest/forest
     go build forest.go
 ```
-等待自动下载依赖库文件
+等待自动下载依赖库
 
 ```shell
 
@@ -118,4 +118,27 @@ ____________________________________O/_______
 ```
 
 
+####    安装web分布式任务调度平台
+
+####    下载源码
+
+>   本地必须安装node环境
+
+ 
+ ```shell
+    git clone https://github.com/busgo/duck.git
+    cd duck 
+    
+    修改 request.js 文件中的地址
+    
+    npm install 
+    
+    启动服务 
+    
+     # 开发环境
+    npm  run dev
+    
+    # 生产环境
+    npm run-script build
+ ```
 
