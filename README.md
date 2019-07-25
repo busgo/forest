@@ -148,6 +148,6 @@ ____________________________________O/_______
 
 #####   任务配置管理
 
-![任务配置管理](https://github.com/busgo/forest/blob/master/screenshot/job.png)
+![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/job.png)
 
 
