@@ -18,6 +18,7 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.2.9
 	github.com/prometheus/client_golang v1.0.0 // indirect
+	github.com/prometheus/common v0.4.1
 	github.com/robfig/cron v1.2.0
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
