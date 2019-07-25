@@ -32,7 +32,7 @@
 ```
 等待自动下载依赖库文件
 
-```go
+```shell
 
 appledeMacBook-Pro:forest apple$ go build forest.go 
 go: finding github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2
@@ -59,7 +59,7 @@ go: finding gopkg.in/yaml.v2 v2.2.1
 
 查看命令行参数
 
-```go
+```shell
 
 appledeMacBook-Pro:forest apple$ ./forest  -help
 flag needs an argument: -help
@@ -77,7 +77,7 @@ appledeMacBook-Pro:forest apple$
 
 启动服务
 
-```go
+```shell
 
 nohup etcd  > etcd.log 2>&1 & 
 	
