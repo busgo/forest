@@ -153,6 +153,48 @@ ____________________________________O/_______
     npm run-script build
  ```
 
+##  Etcd 存放元数据说明
+
+
+### 选举目录
+
+>   /forest/server/elect/leader
+
+是一个临时节点，用于任务调度节点选举，选举成功将节点的ip写入
+
+### 调度节点注册目录
+
+>   /forest/server/node/%s
+
+调度集群中的节点将自己的节点ip写入
+
+### 任务集群
+
+>   /forest/server/group/
+
+任务集群信息全放入此目录下
+
+### 任务快照
+
+>   /forest/client/snapshot/%s/%s/%s
+
+分配任务快照信息放入此目录下
+such as  /forest/client/snapshot/trade/192.168.1.1/201901011111111323
+
+
+### 任务客户端信息
+
+>   /forest/client/%s/clients/
+
+所有任务客户端注册此目录下
+
+such as  /forest/client/trade/clients/192.168.1.1
+
+
+
+// TODO
+
+
 
 ##   管理任务
 
