@@ -11,7 +11,7 @@
 
 ![架构1](https://github.com/busgo/forest/raw/master/screenshot/arch-1.jpg)
 
-在多台的任务调度服务集群中一条任务配置在同一时刻保证只能触发一次任务，如果所有的任务集群都触发了次任务那就说明此任务被重复的执行了N次。我们需要从调度集群中选举出一个调度Leader节点进行指挥。
+在任务调度服务集群中一条任务配置在同一时刻保证只能触发一次任务，如果所有的任务集群都触发了次任务那就说明此任务被重复的执行了N次。我们需要从调度集群中选举出一个调度Leader节点进行指挥。
 只有Leader调度节点才能分发任务，其他的Follower节点没有权限分发任务，一旦Leader调度Node挂掉，其他Follower节点则会重新选举，诞生一台新的Leader节点继续指挥服务。
 
 ![架构2](https://github.com/busgo/forest/raw/master/screenshot/arch-2.jpg)
