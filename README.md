@@ -120,7 +120,7 @@ ____________________________________O/_______
 
 ####    安装web分布式任务调度平台
 
-####    下载源码(duck)[https://github.com/busgo/duck]
+####    下载源码[duck](https://github.com/busgo/duck)
 
 >   本地必须安装node环境
 
