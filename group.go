@@ -253,7 +253,7 @@ func (group *Group) handleClientChangeEvent(changeEvent *KeyChangeEvent) {
 	case KeyCreateChangeEvent:
 		path := changeEvent.Key
 		name := string(changeEvent.Value)
-		group.addClient(path, string(name))
+		group.addClient(name, path)
 
 	case KeyUpdateChangeEvent:
 		//ignore
@@ -279,6 +279,7 @@ func (group *Group) addClient(name, path string) {
 	}
 
 	group.clients[path] = client
+	log.Printf("add a new client for path:%s", path)
 
 }
 
@@ -292,6 +293,7 @@ func (group *Group) deleteClient(path string) {
 	}
 
 	delete(group.clients, path)
+	log.Printf("delete a  client for path:%s", path)
 
 }
 

@@ -21,6 +21,10 @@ func GenerateSerialNo() string {
 
 }
 
+func ToDateString(date time.Time) string {
+
+	return date.Format("2006-01-01 15:04:05")
+}
 func ParkJobConf(jobConf *JobConf) (value []byte, err error) {
 
 	value, err = json.Marshal(jobConf)

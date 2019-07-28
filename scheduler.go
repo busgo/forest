@@ -218,16 +218,16 @@ func (sch *JobScheduler) trySchedule() time.Duration {
 			log.Infof("schedule execute the plan:%#v", plan)
 
 			snapshot := &JobSnapshot{
-				Id:        plan.Id + GenerateSerialNo(),
-				JobId:     plan.Id,
-				Name:      plan.Name,
-				Group:     plan.Group,
-				Cron:      plan.Cron,
-				Target:    plan.Target,
-				Params:    plan.Params,
-				Mobile:    plan.Mobile,
-				Remark:    plan.Remark,
-				StartTime: now,
+				Id:         plan.Id + GenerateSerialNo(),
+				JobId:      plan.Id,
+				Name:       plan.Name,
+				Group:      plan.Group,
+				Cron:       plan.Cron,
+				Target:     plan.Target,
+				Params:     plan.Params,
+				Mobile:     plan.Mobile,
+				Remark:     plan.Remark,
+				CreateTime: ToDateString(now),
 			}
 			sch.node.exec.pushSnapshot(snapshot)
 		}

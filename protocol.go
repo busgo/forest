@@ -96,18 +96,17 @@ type SchedulePlan struct {
 }
 
 type JobSnapshot struct {
-	Id        string    `json:"id"`
-	JobId     string    `json:"jobId"`
-	Name      string    `json:"name"`
-	Ip        string    `json:"ip"`
-	Group     string    `json:"group"`
-	Cron      string    `json:"cron"`
-	Status    int       `json:"status"`
-	Target    string    `json:"target"`
-	Params    string    `json:"params"`
-	Mobile    string    `json:"mobile"`
-	Remark    string    `json:"remark"`
-	StartTime time.Time `json:"startTime"`
+	Id         string `json:"id"`
+	JobId      string `json:"jobId"`
+	Name       string `json:"name"`
+	Ip         string `json:"ip"`
+	Group      string `json:"group"`
+	Cron       string `json:"cron"`
+	Target     string `json:"target"`
+	Params     string `json:"params"`
+	Mobile     string `json:"mobile"`
+	Remark     string `json:"remark"`
+	CreateTime string `json:"createTime"`
 }
 
 type QueryClientParam struct {
