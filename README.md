@@ -272,5 +272,9 @@ such as  /forest/client/trade/clients/192.168.1.1
 
 如有问题请联系 QQ:248434199    Email:248434199@qq.com
 
+##  License
+
+Forest is under the Apache 2.0 license. See the [LICENSE](https://github.com/busgo/forest/raw/master/LICENSE) file for details.
+
 
 
