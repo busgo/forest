@@ -2,6 +2,8 @@ package forest
 
 import (
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
 	"github.com/labstack/gommon/log"
 	"time"
 )
@@ -25,10 +27,17 @@ type JobNode struct {
 	scheduler    *JobScheduler
 	groupManager *JobGroupManager
 	exec         *JobExecutor
+	engine       *xorm.Engine
+	collection   *JobCollection
 	close        chan bool
 }
 
-func NewJobNode(id string, etcd *Etcd, httpAddress string) (node *JobNode, err error) {
+func NewJobNode(id string, etcd *Etcd, httpAddress, dbUrl string) (node *JobNode, err error) {
+
+	engine, err := xorm.NewEngine("mysql", dbUrl)
+	if err != nil {
+		return
+	}
 
 	node = &JobNode{
 		id:           id,
@@ -38,7 +47,10 @@ func NewJobNode(id string, etcd *Etcd, httpAddress string) (node *JobNode, err e
 		state:        NodeFollowerState,
 		apiAddress:   httpAddress,
 		close:        make(chan bool),
+		engine:       engine,
 	}
+
+	node.collection = NewJobCollection(node)
 
 	node.initNode()
 

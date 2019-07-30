@@ -29,6 +29,14 @@ const (
 	NodeLeaderState
 )
 
+const (
+	JobExecuteSnapshotDoingStatus   = 1
+	JobExecuteSnapshotSuccessStatus = 2
+	JobExecuteSnapshotUnkonwStatus  = 3
+	JobExecuteSnapshotErrorStatus   = -1
+
+)
+
 // key 变化事件
 type KeyChangeEvent struct {
 	Type  int
@@ -128,4 +136,40 @@ type QuerySnapshotParam struct {
 type Node struct {
 	Name  string `json:"name"`
 	State int    `json:"state"`
+}
+
+type JobExecuteSnapshot struct {
+	Id         string `json:"id",xorm:"pk"`
+	JobId      string `json:"jobId",xorm:"job_id"`
+	Name       string `json:"name",xorm:"name"`
+	Ip         string `json:"ip",xorm:"ip"`
+	Group      string `json:"group",xorm:"group"`
+	Cron       string `json:"cron",xorm:"cron"`
+	Target     string `json:"target",xorm:"target"`
+	Params     string `json:"params",xorm:"params"`
+	Mobile     string `json:"mobile",xorm:"mobile"`
+	Remark     string `json:"remark",xorm:"remark"`
+	CreateTime string `json:"createTime",xorm:"create_time"`
+	StartTime  string `json:"startTime",xorm:"start_time"`
+	FinishTime string `json:"finishTime",xorm:"finish_time"`
+	Times      int    `json:"times",xorm:"times"`
+	Status     int    `json:"status",xorm:"status"`
+	Result     string `json:"result",xorm:"result"`
+}
+
+type QueryExecuteSnapshotParam struct {
+	Group    string `json:"group"`
+	Id       string `json:"id"`
+	Ip       string `json:"ip"`
+	JobId    string `json:"jobId"`
+	Name     string `json:"name"`
+	Status   int    `json:"status"`
+	PageSize int    `json:"pageSize"`
+	PageNo   int    `json:"pageNo"`
+}
+
+type PageResult struct {
+	TotalPage  int         `json:"totalPage"`
+	TotalCount int         `json:"totalCount"`
+	List       interface{} `json:"list"`
 }

@@ -59,6 +59,40 @@
 
 ## 快速开始
 
+
+### sql脚本
+
+>   任务作业快照表
+
+```sql
+    
+    CREATE TABLE `job_execute_snapshot` (
+      `id` varchar(64) NOT NULL COMMENT '主键',
+      `job_id` varchar(32) NOT NULL COMMENT '任务定义id',
+      `name` varchar(32) NOT NULL COMMENT '任务名称',
+      `group` varchar(32) NOT NULL COMMENT '任务集群',
+      `cron` varchar(32) NOT NULL COMMENT 'cron表达式',
+      `target` varchar(255) NOT NULL COMMENT '目标任务',
+      `params` varchar(255) DEFAULT NULL COMMENT '参数',
+      `ip` varchar(32) NOT NULL COMMENT 'ip',
+      `status` tinyint(4) NOT NULL COMMENT '状态 1-执行中 2-完成  3-未知  4-错误',
+      `mobile` varchar(32) DEFAULT NULL COMMENT '手机号码',
+      `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+      `create_time` varchar(32) NOT NULL COMMENT '创建时间',
+      `start_time` varchar(255) DEFAULT NULL COMMENT '开始时间',
+      `finish_time` varchar(32) DEFAULT NULL COMMENT '结束时间',
+      `times` bigint(20) DEFAULT '0' COMMENT '耗时',
+      `result` varchar(255) DEFAULT NULL COMMENT '返回结果',
+      PRIMARY KEY (`id`),
+      KEY `ip` (`ip`),
+      KEY `job_id` (`job_id`),
+      KEY `status` (`status`),
+      KEY `group` (`group`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='任务作业执行快照';
+
+
+```
+
 ###    先决条件
    *    golang(>=1.11)
    *    git 
@@ -100,19 +134,19 @@ go: finding gopkg.in/yaml.v2 v2.2.1
 ####    查看命令行参数
 
 ```shell
-
 appledeMacBook-Pro:forest apple$ ./forest  -help
 flag needs an argument: -help
 Usage of ./forest:
+  -dbUrl string
+        db url for mysql (default "root:123456@tcp(127.0.0.1:3306)/forest?charset=utf8")
   -etcd-dailtimeout int
-    	etcd dailtimeout (default 5)
+        etcd dailtimeout (default 5)
   -etcd-endpoints string
-    	etcd endpoints (default "127.0.0.1:2379")
+        etcd endpoints (default "127.0.0.1:2379")
   -help string
-    	forest help
+        forest help
   -http-address string
-    	http address (default ":2856")
-appledeMacBook-Pro:forest apple$
+        http address (default ":2856")
 ```
 
 ####    启动服务
@@ -220,9 +254,10 @@ such as  /forest/client/snapshot/trade/192.168.1.1/201901011111111323
 such as  /forest/client/trade/clients/192.168.1.1
 
 
+### 任务作业上报目录
+>   /forest/client/execute/snapshot/%s/%s/
 
-// TODO
-
+such as  /forest/client/execute/snapshot/trade/192.168.1.1/201901011111111323
 
 
 ##   管理任务
@@ -233,43 +268,44 @@ such as  /forest/client/trade/clients/192.168.1.1
 
 ###  新建任务
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/addJob.jpg)
+![新建任务](https://github.com/busgo/forest/raw/master/screenshot/addJob.jpg)
 
 
 ### 任务集群
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/group.jpg)
+![任务集群](https://github.com/busgo/forest/raw/master/screenshot/group.jpg)
 
 ### 任务执行计划
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/plan.jpg)
+![任务执行计划](https://github.com/busgo/forest/raw/master/screenshot/plan.jpg)
 
 ### 调度集群
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/node.jpg)
+![调度集群](https://github.com/busgo/forest/raw/master/screenshot/node.jpg)
 
 ### 任务快照
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/snapshot.jpg)
+![任务快照](https://github.com/busgo/forest/raw/master/screenshot/snapshot.jpg)
 
 ### 任务客户端节点
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/clients.jpg)
+![任务客户端节点](https://github.com/busgo/forest/raw/master/screenshot/clients.jpg)
+
+### 任务作业快照
+
+![任务作业快照](https://github.com/busgo/forest/raw/master/screenshot/execute.jpg)
 
 
 ##  Client Libraries 
 
-*   [jforest for java ](https://github.com/busgo/jforest)
-*   [gforest for go](https://github.com/busgo/gforest)
+*   [jforest](https://github.com/busgo/jforest) for Java
+*   [gforest](https://github.com/busgo/gforest) for go
 
 ##  待完善
 
 1.  任务故障转移
-2.  任务执行日志收集
-3.  任务作业sdk
-4.  手动执行任务
-5.  任务统计
-6.  任务报警
+2.  手动执行任务
+3.  任务报警
 
 
 
