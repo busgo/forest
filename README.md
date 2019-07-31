@@ -137,7 +137,7 @@ go: finding gopkg.in/yaml.v2 v2.2.1
 appledeMacBook-Pro:forest apple$ ./forest  -help
 flag needs an argument: -help
 Usage of ./forest:
-  -dbUrl string
+  -db-url string
         db url for mysql (default "root:123456@tcp(127.0.0.1:3306)/forest?charset=utf8")
   -etcd-dailtimeout int
         etcd dailtimeout (default 5)

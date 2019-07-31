@@ -27,7 +27,7 @@ func main() {
 	httpAddress := flag.String("http-address", DefaultHttpAddress, "http address")
 	etcdDialTime := flag.Int64("etcd-dailtimeout", DefaultDialTimeout, "etcd dailtimeout")
 	help := flag.String("help", "", "forest help")
-	dbUrl := flag.String("dbUrl", DefaultDbUrl, "db url for mysql")
+	dbUrl := flag.String("db-url", DefaultDbUrl, "db-url for mysql")
 	flag.Parse()
 	if *help != "" {
 		flag.Usage()
