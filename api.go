@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/robfig/cron"
 	"net/http"
+	"time"
 )
 
 type JobAPi struct {
@@ -28,6 +29,7 @@ func NewJobAPi(node *JobNode) (api *JobAPi) {
 	e.POST("/job/edit", api.editJob)
 	e.POST("/job/delete", api.deleteJob)
 	e.POST("/job/list", api.jobList)
+	e.POST("/job/execute", api.manualExecute)
 	e.POST("/group/add", api.addGroup)
 	e.POST("/group/list", api.groupList)
 	e.POST("/node/list", api.nodeList)
@@ -437,13 +439,13 @@ ERROR:
 func (api *JobAPi) executeSnapshotList(context echo.Context) (err error) {
 
 	var (
-		query     *QueryExecuteSnapshotParam
-		message   string
-		count     int64
-		snapshots []*JobExecuteSnapshot
-		totalPage int64
-		where     *xorm.Session
-		queryWhere     *xorm.Session
+		query      *QueryExecuteSnapshotParam
+		message    string
+		count      int64
+		snapshots  []*JobExecuteSnapshot
+		totalPage  int64
+		where      *xorm.Session
+		queryWhere *xorm.Session
 	)
 	query = new(QueryExecuteSnapshotParam)
 	if err = context.Bind(query); err != nil {
@@ -509,5 +511,88 @@ func (api *JobAPi) executeSnapshotList(context echo.Context) (err error) {
 
 ERROR:
 	return context.JSON(http.StatusOK, Result{Code: -1, Message: message})
+
+}
+
+// manual execute
+func (api *JobAPi) manualExecute(context echo.Context) (err error) {
+
+	var (
+		conf         *JobConf
+		value        []byte
+		client       *Client
+		snapshotPath string
+		snapshot     *JobSnapshot
+		success      bool
+	)
+
+	conf = new(JobConf)
+	if err = context.Bind(conf); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "非法的参数"})
+
+	}
+
+	// 检查任务配置id是否存在
+	if conf.Id == "" {
+
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "此任务配置不存在"})
+	}
+
+	// 查询任务配置
+	if value, err = api.node.etcd.Get(JobConfPath + conf.Id); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "查询任务配置出现异常:" + err.Error()})
+	}
+
+	// 任务配置是否为空
+	if len(value) == 0 {
+
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "此任务配置内容为空"})
+	}
+
+	if conf, err = UParkJobConf(value); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "非法的任务配置内容"})
+	}
+
+	// select a execute  job client for group
+	if client, err = api.node.groupManager.selectClient(conf.Group); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "没有找到此要执行的任务作业节点"})
+	}
+
+	// build the job snapshot path
+	snapshotPath = fmt.Sprintf(JobClientSnapshotPath, conf.Group, client.name)
+
+	// build job snapshot
+	snapshotId := GenerateSerialNo() + conf.Id
+	snapshot = &JobSnapshot{
+		Id:         snapshotId,
+		JobId:      conf.Id,
+		Name:       conf.Name,
+		Ip:         client.name,
+		Group:      conf.Group,
+		Cron:       conf.Cron,
+		Target:     conf.Target,
+		Params:     conf.Params,
+		Mobile:     conf.Mobile,
+		Remark:     conf.Remark,
+		CreateTime: ToDateString(time.Now()),
+	}
+
+	// park the job snapshot
+	if value, err = ParkJobSnapshot(snapshot); err != nil {
+
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+
+	// dispatch the job snapshot the client
+	if success, _, err = api.node.etcd.PutNotExist(snapshotPath, string(value)); err != nil {
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: err.Error()})
+	}
+
+	if !success {
+
+		return context.JSON(http.StatusOK, Result{Code: -1, Message: "手动执行任务失败,请重试"})
+	}
+
+	return context.JSON(http.StatusOK, Result{Code: 0, Message: "手动执行任务请求已提交"})
 
 }

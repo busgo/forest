@@ -177,3 +177,10 @@ type PageResult struct {
 	TotalCount int         `json:"totalCount"`
 	List       interface{} `json:"list"`
 }
+
+//  manual execute job
+type ManualExecuteJobParam struct {
+	Id    string `json:"id"`
+	Name  string `json:"name"`
+	Group string `json:"group"`
+}
