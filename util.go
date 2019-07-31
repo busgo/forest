@@ -13,7 +13,7 @@ func GenerateSerialNo() string {
 
 	now := time.Now()
 
-	format := now.Format("20060101150405")
+	format := now.Format("20060102150405")
 
 	suffer := fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
 
@@ -23,7 +23,7 @@ func GenerateSerialNo() string {
 
 func ToDateString(date time.Time) string {
 
-	return date.Format("2006-01-01 15:04:05")
+	return date.Format("2006-01-02 15:04:05")
 }
 func ParkJobConf(jobConf *JobConf) (value []byte, err error) {
 
@@ -133,6 +133,6 @@ func TimeSubDays(t1, t2 time.Time) int {
 
 func ParseInLocation(value string) (dateTime time.Time, err error) {
 
-	dateTime, err = time.Parse("2006-01-01 15:04:05", value)
+	dateTime, err = time.Parse("2006-01-02 15:04:05", value)
 	return
 }

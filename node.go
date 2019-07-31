@@ -29,6 +29,7 @@ type JobNode struct {
 	exec         *JobExecutor
 	engine       *xorm.Engine
 	collection   *JobCollection
+	failOver     *JobSnapshotFailOver
 	close        chan bool
 }
 
@@ -49,6 +50,8 @@ func NewJobNode(id string, etcd *Etcd, httpAddress, dbUrl string) (node *JobNode
 		close:        make(chan bool),
 		engine:       engine,
 	}
+
+	node.failOver = NewJobSnapshotFailOver(node)
 
 	node.collection = NewJobCollection(node)
 

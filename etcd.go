@@ -411,3 +411,33 @@ func (etcd *Etcd) TxKeepaliveWithTTL(key, value string, ttl int64) (txResponse *
 	}
 	return
 }
+
+// transfer from  to with value
+func (etcd *Etcd) transfer(from string, to string, value string) (success bool, err error) {
+
+	var (
+		txnResponse *clientv3.TxnResponse
+	)
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), etcd.timeout)
+	defer cancelFunc()
+
+	txn := etcd.client.Txn(ctx)
+
+	txnResponse, err = txn.If(
+		clientv3.Compare(clientv3.Value(from), "=", value)).
+		Then(
+			clientv3.OpDelete(from),
+			clientv3.OpPut(to, value),
+
+		).Commit()
+
+	if err != nil {
+		return
+	}
+
+	success = txnResponse.Succeeded
+
+	return
+
+}

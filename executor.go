@@ -8,7 +8,7 @@ import (
 const (
 	JobSnapshotPath       = "/forest/client/snapshot/"
 	JobSnapshotGroupPath  = "/forest/client/snapshot/%s/"
-	JobClientSnapshotPath = "/forest/client/snapshot/%s/%s"
+	JobClientSnapshotPath = "/forest/client/snapshot/%s/%s/"
 )
 
 type JobExecutor struct {
@@ -50,10 +50,10 @@ func (exec *JobExecutor) handleJobSnapshot(snapshot *JobSnapshot) {
 	clientName := client.name
 	snapshot.Ip = clientName
 
-	log.Printf("clientNmae:%#v",clientName)
-	snapshotPath := fmt.Sprintf(JobClientSnapshotPath+"/", group, clientName)
+	log.Printf("clientName:%#v", clientName)
+	snapshotPath := fmt.Sprintf(JobClientSnapshotPath, group, clientName)
 
-	log.Printf("snapshotPath:%#v",snapshotPath)
+	log.Printf("snapshotPath:%#v", snapshotPath)
 	value, err := ParkJobSnapshot(snapshot)
 	if err != nil {
 		log.Warnf("uPark the snapshot  error:%#v", group, err)

@@ -285,15 +285,25 @@ func (group *Group) addClient(name, path string) {
 
 // delete a client for path
 func (group *Group) deleteClient(path string) {
+
+	var (
+		client *Client
+		ok     bool
+	)
 	group.lk.Lock()
 	defer group.lk.Unlock()
-	if _, ok := group.clients[path]; !ok {
+	if client, ok = group.clients[path]; !ok {
 		log.Warnf("path:%s,the client not  exist", path)
 		return
 	}
 
 	delete(group.clients, path)
 	log.Printf("delete a  client for path:%s", path)
+
+	// fail over
+	if group.node.state == NodeLeaderState {
+		group.node.failOver.deleteClientEventChans <- &JobClientDeleteEvent{Group: group, Client: client}
+	}
 
 }
 

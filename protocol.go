@@ -34,7 +34,6 @@ const (
 	JobExecuteSnapshotSuccessStatus = 2
 	JobExecuteSnapshotUnkonwStatus  = 3
 	JobExecuteSnapshotErrorStatus   = -1
-
 )
 
 // key 变化事件
@@ -57,6 +56,11 @@ type TxResponse struct {
 	Lease   clientv3.Lease
 	Key     string
 	Value   string
+}
+
+type JobClientDeleteEvent struct {
+	Client *Client
+	Group  *Group
 }
 
 // job

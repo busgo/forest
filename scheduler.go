@@ -218,7 +218,7 @@ func (sch *JobScheduler) trySchedule() time.Duration {
 			log.Infof("schedule execute the plan:%#v", plan)
 
 			snapshot := &JobSnapshot{
-				Id:         plan.Id + GenerateSerialNo(),
+				Id:         GenerateSerialNo() + plan.Id,
 				JobId:      plan.Id,
 				Name:       plan.Name,
 				Group:      plan.Group,
