@@ -65,15 +65,16 @@ type JobClientDeleteEvent struct {
 
 // job
 type JobConf struct {
-	Id     string `json:"id"`
-	Name   string `json:"name"`
-	Group  string `json:"group"`
-	Cron   string `json:"cron"`
-	Status int    `json:"status"`
-	Target string `json:"target"`
-	Params string `json:"params"`
-	Mobile string `json:"mobile"`
-	Remark string `json:"remark"`
+	Id      string `json:"id"`
+	Name    string `json:"name"`
+	Group   string `json:"group"`
+	Cron    string `json:"cron"`
+	Status  int    `json:"status"`
+	Target  string `json:"target"`
+	Params  string `json:"params"`
+	Mobile  string `json:"mobile"`
+	Remark  string `json:"remark"`
+	Version int    `json:"version"`
 }
 
 type Result struct {
@@ -105,6 +106,7 @@ type SchedulePlan struct {
 	schedule   cron.Schedule
 	NextTime   time.Time `json:"nextTime"`
 	BeforeTime time.Time `json:"beforeTime"`
+	Version    int       `json:"version"`
 }
 
 type JobSnapshot struct {

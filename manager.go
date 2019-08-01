@@ -176,6 +176,7 @@ func (manager *JobManager) AddJob(jobConf *JobConf) (err error) {
 	}
 
 	jobConf.Id = GenerateSerialNo()
+	jobConf.Version = 1
 
 	if v, err = ParkJobConf(jobConf); err != nil {
 		return
@@ -198,6 +199,7 @@ func (manager *JobManager) editJob(jobConf *JobConf) (err error) {
 		value   []byte
 		v       []byte
 		success bool
+		oldConf *JobConf
 	)
 
 	if value, err = manager.node.etcd.Get(GroupConfPath + jobConf.Group); err != nil {
@@ -215,9 +217,7 @@ func (manager *JobManager) editJob(jobConf *JobConf) (err error) {
 		return
 	}
 
-	if v, err = ParkJobConf(jobConf); err != nil {
-		return
-	}
+
 
 	if value, err = manager.node.etcd.Get(JobConfPath + jobConf.Id); err != nil {
 		return
@@ -227,6 +227,16 @@ func (manager *JobManager) editJob(jobConf *JobConf) (err error) {
 		err = errors.New("此任务配置记录不存在")
 		return
 	}
+
+	if oldConf, err = UParkJobConf([]byte(value)); err != nil {
+		return
+	}
+
+	jobConf.Version =oldConf.Version+1
+	if v, err = ParkJobConf(jobConf); err != nil {
+		return
+	}
+
 	if success, err = manager.node.etcd.Update(JobConfPath+jobConf.Id, string(v), string(value)); err != nil {
 		return
 	}

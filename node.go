@@ -30,7 +30,13 @@ type JobNode struct {
 	engine       *xorm.Engine
 	collection   *JobCollection
 	failOver     *JobSnapshotFailOver
+	listeners    []NodeStateChangeListener
 	close        chan bool
+}
+
+// node state change  listener
+type NodeStateChangeListener interface {
+	notify(int)
 }
 
 func NewJobNode(id string, etcd *Etcd, httpAddress, dbUrl string) (node *JobNode, err error) {
@@ -49,6 +55,7 @@ func NewJobNode(id string, etcd *Etcd, httpAddress, dbUrl string) (node *JobNode
 		apiAddress:   httpAddress,
 		close:        make(chan bool),
 		engine:       engine,
+		listeners:    make([]NodeStateChangeListener, 0),
 	}
 
 	node.failOver = NewJobSnapshotFailOver(node)
@@ -71,6 +78,29 @@ func NewJobNode(id string, etcd *Etcd, httpAddress, dbUrl string) (node *JobNode
 	node.api = NewJobAPi(node)
 
 	return
+}
+
+func (node *JobNode) addListeners() {
+
+	node.listeners = append(node.listeners, node.scheduler)
+
+}
+
+func (node *JobNode) changeState(state int) {
+
+	node.state = state
+
+	if len(node.listeners) == 0 {
+
+		return
+	}
+
+	// notify all listener
+	for _, listener := range node.listeners {
+
+		listener.notify(state)
+	}
+
 }
 
 // start register node
@@ -196,7 +226,7 @@ func (node *JobNode) handleElectLeaderChangeEvent(changeEvent *KeyChangeEvent) {
 	switch changeEvent.Type {
 
 	case KeyDeleteChangeEvent:
-		node.state = NodeFollowerState
+		node.changeState(NodeFollowerState)
 		node.loopStartElect()
 	case KeyCreateChangeEvent:
 
@@ -221,16 +251,16 @@ RETRY:
 	}
 
 	if txResponse.Success {
-		node.state = NodeLeaderState
+		node.changeState(NodeLeaderState)
 		log.Printf("the job node:%s,elect  success to :%s", node.id, node.electPath)
 	} else {
 		v := txResponse.Value
 		if v != node.id {
 			log.Printf("the job node:%s,give up elect request because the other job node：%s elect to:%s", node.id, v, node.electPath)
-			node.state = NodeFollowerState
+			node.changeState(NodeFollowerState)
 		} else {
 			log.Printf("the job node:%s, has already elect  success to :%s", node.id, node.electPath)
-			node.state = NodeLeaderState
+			node.changeState(NodeLeaderState)
 		}
 	}
 
