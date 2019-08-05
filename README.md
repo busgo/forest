@@ -313,7 +313,7 @@ such as  /forest/client/execute/snapshot/trade/192.168.1.1/201901011111111323
 
 ##  联系方式
 
-如有问题请联系 QQ:248434199    Email:248434199@qq.com
+如有问题请联系 QQ:248434199    Email:248434199@qq.com 讨论QQ群:806735002
 
 ##  License
 
