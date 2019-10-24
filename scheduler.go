@@ -123,7 +123,7 @@ func (sch *JobScheduler) handleJobDeleteEvent(event *JobChangeEvent) {
 		return
 	}
 
-	if plan.Version > jobConf.Version {
+	if plan.Version > jobConf.Version && jobConf.Version != -1 {
 		log.Warnf("the job conf:%#v version:%d <  schedule plan:%#v,version:%d", jobConf, jobConf.Version, plan, plan.Version)
 		return
 	}
@@ -327,7 +327,7 @@ func (sch *JobScheduler) trySync() {
 	for id, plan := range sch.schedulePlans {
 
 		if !sch.existPlan(id, jobConfs) {
-			log.Warnf("sync the schedule plan %v must delete",plan)
+			log.Warnf("sync the schedule plan %v must delete", plan)
 			delete(sch.schedulePlans, id)
 		}
 	}
@@ -363,7 +363,7 @@ func (sch *JobScheduler) handleJobConfSync(conf *JobConf) {
 	if plan, exist = sch.schedulePlans[conf.Id]; !exist {
 
 		if conf.Status == JobRunningStatus {
-			log.Warnf("sync the schedule plan the job conf: %v must create",conf)
+			log.Warnf("sync the schedule plan the job conf: %v must create", conf)
 			sch.handleJobCreateEvent(&JobChangeEvent{
 				Type: JobCreateChangeEvent,
 				Conf: conf,
@@ -371,7 +371,7 @@ func (sch *JobScheduler) handleJobConfSync(conf *JobConf) {
 		} else {
 
 			if plan.Version < conf.Version {
-				log.Warnf("sync the schedule plan %v must update",plan)
+				log.Warnf("sync the schedule plan %v must update", plan)
 				sch.handleJobUpdateEvent(&JobChangeEvent{
 					Type: JobUpdateChangeEvent,
 					Conf: conf,
