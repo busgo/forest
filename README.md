@@ -18,10 +18,10 @@
 
 可以部署N个Node节点,同一时刻只有一台Leader节点,只有选举成功的Leader节点才有派发任务的权限。任务客户端启动时候通过Etcd进行注册客户端元数据信息。
 
-![架构1](https://github.com/busgo/forest/raw/master/screenshot/arch-1.jpg)
+![架构1](screenshot/arch-1.jpg)
 
 
-![架构2](https://github.com/busgo/forest/raw/master/screenshot/arch-2.jpg)
+![架构2](screenshot/arch-2.jpg)
 
 ##  角色
 
@@ -266,36 +266,36 @@ such as  /forest/client/execute/snapshot/trade/192.168.1.1/201901011111111323
 
 ###  任务配置管理
 
-![任务配置管理](https://github.com/busgo/forest/raw/master/screenshot/job.jpg)
+![任务配置管理](screenshot/job.jpg)
 
 ###  新建任务
 
-![新建任务](https://github.com/busgo/forest/raw/master/screenshot/addJob.jpg)
+![新建任务](screenshot/addJob.jpg)
 
 
 ### 任务集群
 
-![任务集群](https://github.com/busgo/forest/raw/master/screenshot/group.jpg)
+![任务集群](screenshot/group.jpg)
 
 ### 任务执行计划
 
-![任务执行计划](https://github.com/busgo/forest/raw/master/screenshot/plan.jpg)
+![任务执行计划](screenshot/plan.jpg)
 
 ### 调度集群
 
-![调度集群](https://github.com/busgo/forest/raw/master/screenshot/node.jpg)
+![调度集群](screenshot/node.jpg)
 
 ### 任务快照
 
-![任务快照](https://github.com/busgo/forest/raw/master/screenshot/snapshot.jpg)
+![任务快照](screenshot/snapshot.jpg)
 
 ### 任务客户端节点
 
-![任务客户端节点](https://github.com/busgo/forest/raw/master/screenshot/clients.jpg)
+![任务客户端节点](screenshot/clients.jpg)
 
 ### 任务作业快照
 
-![任务作业快照](https://github.com/busgo/forest/raw/master/screenshot/execute.jpg)
+![任务作业快照](screenshot/execute.jpg)
 
 
 ##  Client Libraries 
@@ -315,11 +315,11 @@ such as  /forest/client/execute/snapshot/trade/192.168.1.1/201901011111111323
 
 ##  联系方式
 
-如有问题请联系 QQ:248434199    Email:248434199@qq.com 讨论QQ群:806735002
+如有问题请联系 QQ:466862016    Email:466862016@qq.com 讨论QQ群:806735002
 
 ##  License
 
-Forest is under the Apache 2.0 license. See the [LICENSE](https://github.com/busgo/forest/raw/master/LICENSE) file for details.
+Forest is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
 
 
 
