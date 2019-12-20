@@ -2,8 +2,8 @@ package forest
 
 import (
 	"context"
+	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
-	"go.etcd.io/etcd/clientv3"
 	"log"
 	"time"
 )
@@ -429,7 +429,6 @@ func (etcd *Etcd) transfer(from string, to string, value string) (success bool, 
 		Then(
 			clientv3.OpDelete(from),
 			clientv3.OpPut(to, value),
-
 		).Commit()
 
 	if err != nil {
