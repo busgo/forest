@@ -53,36 +53,20 @@ func (c *JobCollection) handleJobExecuteStatusCollectionEvent(event *KeyChangeEv
 
 	switch event.Type {
 
-	case KeyCreateChangeEvent:
+	case KeyCreateChangeEvent,KeyUpdateChangeEvent:
 
 		if len(event.Value) == 0 {
 			return
 		}
-
 		executeSnapshot, err := UParkJobExecuteSnapshot(event.Value)
-
 		if err != nil {
 			log.Warnf("UParkJobExecuteSnapshot:%s fail,err:%#v ", event.Value, err)
-			_ = c.node.etcd.Delete(event.Key)
+			if event.Type == KeyCreateChangeEvent {
+				_ = c.node.etcd.Delete(event.Key)
+			}
 			return
 		}
 		c.handleJobExecuteSnapshot(event.Key, executeSnapshot)
-
-	case KeyUpdateChangeEvent:
-
-		if len(event.Value) == 0 {
-			return
-		}
-
-		executeSnapshot, err := UParkJobExecuteSnapshot(event.Value)
-
-		if err != nil {
-			log.Warnf("UParkJobExecuteSnapshot:%s fail,err:%#v ", event.Value, err)
-			return
-		}
-
-		c.handleJobExecuteSnapshot(event.Key, executeSnapshot)
-
 	case KeyDeleteChangeEvent:
 
 	}
