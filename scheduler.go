@@ -368,20 +368,19 @@ func (sch *JobScheduler) handleJobConfSync(conf *JobConf) {
 				Type: JobCreateChangeEvent,
 				Conf: conf,
 			})
-		} else {
+		}
 
-			if plan.Version < conf.Version {
-				log.Warnf("sync the schedule plan %v must update", plan)
-				sch.handleJobUpdateEvent(&JobChangeEvent{
-					Type: JobUpdateChangeEvent,
-					Conf: conf,
-				})
-			}
+	} else {
 
+		if plan.Version < conf.Version {
+			log.Warnf("sync the schedule plan %v must update", plan)
+			sch.handleJobUpdateEvent(&JobChangeEvent{
+				Type: JobUpdateChangeEvent,
+				Conf: conf,
+			})
 		}
 
 	}
-
 }
 
 // notify the node state change event
